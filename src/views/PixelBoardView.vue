@@ -1,9 +1,9 @@
 <script lang="ts" setup>
-  import PixelBoardContent from '@/components/templates/PixelBoardContent.vue';
+  import BoardContent from '@/components/templates/BoardContent.vue';
 </script>
 
 <template>
-  <PixelBoardContent>
+  <BoardContent>
     Hello
-  </PixelBoardContent>
+  </BoardContent>
 </template>
