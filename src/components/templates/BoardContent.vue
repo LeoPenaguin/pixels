@@ -33,15 +33,18 @@ const drag = (event: MouseEvent) => {
 };
 
 onMounted(() => {
-    container.value.addEventListener('mousedown', startDrag);
-    window.addEventListener('mouseup', stopDrag);
-    window.addEventListener('mousemove', drag);
+    // translateX.value = - slot.value.offsetWidth / 2
+    // translateY.value = - slot.value.offsetHeight / 2
+
+    container.value?.addEventListener('mousedown', startDrag);
+    container.value?.addEventListener('mouseup', stopDrag);
+    container.value?.addEventListener('mousemove', drag);
 });
 
 onUnmounted(() => {
-    container.value.removeEventListener('mousedown', startDrag);
-    window.removeEventListener('mouseup', stopDrag);
-    window.removeEventListener('mousemove', drag);
+    container.value?.removeEventListener('mousedown', startDrag);
+    container.value?.removeEventListener('mouseup', stopDrag);
+    container.value?.removeEventListener('mousemove', drag);
 });
 </script>
 
@@ -67,6 +70,7 @@ onUnmounted(() => {
   height: 100%;
   box-sizing: border-box;
   position: relative;
+  overflow: hidden;
   &__slot {
     position: absolute;
     top: 50%;
