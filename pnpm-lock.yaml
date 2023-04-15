@@ -10,12 +10,14 @@ specifiers:
   '@vue/eslint-config-typescript': ^11.0.2
   '@vue/test-utils': ^2.3.0
   '@vue/tsconfig': ^0.1.3
-  eslint: ^8.34.0
-  eslint-plugin-vue: ^9.9.0
+  eslint: ^8.38.0
+  eslint-config-prettier: ^8.8.0
+  eslint-plugin-prettier-vue: ^4.2.0
+  eslint-plugin-vue: ^9.10.0
   jsdom: ^21.1.0
   npm-run-all: ^4.1.5
   pinia: ^2.0.32
-  prettier: ^2.8.4
+  prettier: ^2.8.7
   sass: ^1.61.0
   typescript: ~4.8.4
   vite: ^4.1.4
@@ -40,6 +42,8 @@ devDependencies:
   '@vue/test-utils': 2.3.2_vue@3.2.47
   '@vue/tsconfig': 0.1.3_@types+node@18.15.11
   eslint: 8.38.0
+  eslint-config-prettier: 8.8.0_eslint@8.38.0
+  eslint-plugin-prettier-vue: 4.2.0
   eslint-plugin-vue: 9.10.0_eslint@8.38.0
   jsdom: 21.1.1
   npm-run-all: 4.1.5
@@ -1284,6 +1288,16 @@ packages:
       eslint: '>=7.0.0'
     dependencies:
       eslint: 8.38.0
+    dev: true
+
+  /eslint-plugin-prettier-vue/4.2.0:
+    resolution: {integrity: sha512-DA2oNRx+pZ6RM/EIHIPME4FQZifnkEROa55OWtTTUFGHpj53tcHomuxVP/kS/2MM+ul46GEK+jymK69STWDWoA==}
+    engines: {node: '>=14'}
+    dependencies:
+      '@vue/compiler-sfc': 3.2.47
+      chalk: 4.1.2
+      prettier: 2.8.7
+      prettier-linter-helpers: 1.0.0
     dev: true
 
   /eslint-plugin-prettier/4.2.1_mrzcadguhkbme6yx3ehduvsjxu:

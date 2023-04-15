@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-  import BoardContent from '@/components/templates/BoardContent.vue';
+import BoardContent from '@/components/templates/BoardContent.vue';
 </script>
 
 <template>
