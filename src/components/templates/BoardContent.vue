@@ -11,37 +11,37 @@ const translateY = ref(0);
 let dragging = false;
 
 const zoom = (event: WheelEvent) => {
-  if (!dragging) {
-    const zoomFactor = event.deltaY > 0 ? 0.9 : 1.1;
-    scale.value *= zoomFactor;
-  }
+    if (!dragging) {
+        const zoomFactor = event.deltaY > 0 ? 0.9 : 1.1;
+        scale.value *= zoomFactor;
+    }
 };
 
 const startDrag = () => {
-  dragging = true;
+    dragging = true;
 };
 
 const stopDrag = () => {
-  dragging = false;
+    dragging = false;
 };
 
 const drag = (event: MouseEvent) => {
-  if (dragging) {
-    translateX.value = translateX.value + event.movementX / scale.value;
-    translateY.value = translateY.value + event.movementY / scale.value;
-  }
+    if (dragging) {
+        translateX.value = translateX.value + event.movementX / scale.value;
+        translateY.value = translateY.value + event.movementY / scale.value;
+    }
 };
 
 onMounted(() => {
-  container.value.addEventListener('mousedown', startDrag);
-  window.addEventListener('mouseup', stopDrag);
-  window.addEventListener('mousemove', drag);
+    container.value.addEventListener('mousedown', startDrag);
+    window.addEventListener('mouseup', stopDrag);
+    window.addEventListener('mousemove', drag);
 });
 
 onUnmounted(() => {
-  container.value.removeEventListener('mousedown', startDrag);
-  window.removeEventListener('mouseup', stopDrag);
-  window.removeEventListener('mousemove', drag);
+    container.value.removeEventListener('mousedown', startDrag);
+    window.removeEventListener('mouseup', stopDrag);
+    window.removeEventListener('mousemove', drag);
 });
 </script>
 

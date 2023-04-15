@@ -7,7 +7,7 @@ import NavAndContent from './components/templates/NavAndContent.vue';
 <template>
   <NavAndContent>
     <template #nav>
-      <TheHeader/>
+      <TheHeader />
     </template>
     <template #content>
       <RouterView />
