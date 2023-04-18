@@ -71,10 +71,11 @@ onUnmounted(() => {
   box-sizing: border-box;
   position: relative;
   overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   &__slot {
     position: absolute;
-    top: 50%;
-    left: 50%;
     transform-origin: center;
     outline: 4px solid red;
   }

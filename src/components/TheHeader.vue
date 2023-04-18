@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import NavDropdown from './navigation/NavDropdown.vue'
-import NavButton from './navigation/NavButton.vue'
 import { RouterLink } from 'vue-router'
 </script>
 
@@ -8,14 +7,18 @@ import { RouterLink } from 'vue-router'
   <nav>
     <div class="nav-left">
       <RouterLink to="/">
-        Home
+        <div class="home-link-logo">
+          <img
+            src="../assets/logo.png"
+            alt="The logo"
+          >
+        </div>
       </RouterLink>
       <RouterLink to="/pixel-board">
         Pixel Board
       </RouterLink>
     </div>
     <div class="nav-right">
-      <NavButton text="lol" />
       <NavDropdown />
     </div>
   </nav>
@@ -29,6 +32,19 @@ nav {
     display: flex;
     align-items: flex-start;
     gap: 1rem;
+    a {
+      height: 100%;
+    }
+    .home-link-logo {
+      border-radius: 5px;
+      height: 100%;
+      img {
+        height: 100%;
+      }
+      &:hover {
+        background: rgb(8, 8, 8);
+      }
+    }
   }
   .nav-right {
     display: flex;
