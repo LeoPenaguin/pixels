@@ -5,7 +5,9 @@
 </template>
 
 <style lang="scss" scropped>
+@import '@/assets/style/theme.scss';
+
 .page-content {
-  padding: 1rem;
+  padding: $m5;
 }
 </style>

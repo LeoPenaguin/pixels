@@ -25,21 +25,21 @@ defineEmits(['click'])
 </script>
 
 <style lang="scss" scoped>
+@import '@/assets/style/theme.scss';
+
 button {
-  padding: 0 14px;
-  color: white;
-  border: 2px solid currentColor;
-  background: rgb(26, 26, 26);
+  padding: $m1 $m2;
+  color: $text-color;
+  border: pxtorem(2) solid currentColor;
   background: none;
   outline: 0;
-  border-radius: 5px;
+  border-radius: $m2;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: $m2;
   cursor: pointer;
-  height: 40px;
   &.is-active {
-    color: rgb(0, 170, 255);
+    color: $active-text-color;
   }
 }
 </style>

@@ -18,13 +18,13 @@ import { RouterLink } from 'vue-router'
         Pixel Board
       </RouterLink>
     </div>
-    <div class="nav-right">
-      <NavDropdown />
-    </div>
+    <NavDropdown />
   </nav>
 </template>
 
 <style lang="scss" scoped>
+@import '@/assets/style/theme.scss';
+
 nav {
   display: flex;
   justify-content: space-between;
@@ -36,21 +36,15 @@ nav {
       height: 100%;
     }
     .home-link-logo {
-      border-radius: 5px;
+      border-radius: $m4;
       height: 100%;
       img {
         height: 100%;
       }
       &:hover {
-        background: rgb(8, 8, 8);
+        background: $background-color;
       }
     }
-  }
-  .nav-right {
-    display: flex;
-    align-items: flex-start;
-    gap: 1rem;
-    flex-direction: row;
   }
 }
 </style>

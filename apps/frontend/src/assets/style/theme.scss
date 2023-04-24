@@ -1,0 +1,28 @@
+@use 'sass:math';
+
+$background-color: rgb(255, 255, 255);
+$secondary-background-color: rgb(236, 236, 236);
+$tertiary-background-color: rgb(225, 225, 225);
+
+$text-color:rgb(27, 27, 27);
+$active-text-color:rgb(28, 178, 143);
+$link-color:rgb(29, 165, 211);
+
+@function pxtorem($pxValue) {
+  @return #{math.div($pxValue, 16)}rem;
+}
+
+$m1: pxtorem(4);
+$m2: pxtorem(8);
+$m3: pxtorem(12);
+$m4: pxtorem(16);
+$m5: pxtorem(20);
+$m6: pxtorem(24);
+$m7: pxtorem(28);
+$m8: pxtorem(32);
+$m9: pxtorem(36);
+$m10: pxtorem(40);
+$m11: pxtorem(44);
+$m12: pxtorem(48);
+$m13: pxtorem(52);
+$m14: pxtorem(56);

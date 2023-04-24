@@ -34,6 +34,8 @@ function toggleMenu() {
 </template>
 
 <style lang="scss" scoped>
+@import '@/assets/style/theme.scss';
+
 .nav-dropdown {
   position: relative;
   &__top {
@@ -47,7 +49,7 @@ function toggleMenu() {
     height: fit-content;
     margin: 0;
     padding: 5px;
-    background: rgb(52, 52, 52);
+    background: $tertiary-background-color;
     border-radius: 10px;
     list-style: none;
     width: max-content;
@@ -60,7 +62,7 @@ function toggleMenu() {
       align-items: center;
       gap: 10px;
       &:hover {
-        background-color: rgb(41, 41, 41);
+        background-color: $background-color;
         cursor: pointer;
       }
     }

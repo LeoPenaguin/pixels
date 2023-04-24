@@ -1,5 +1,6 @@
 <script lang="ts" setup>
-import PageContent from '../components/templates/PageContent.vue';
+import PresentationPanel from '@/components/homePage/PresentationPanel.vue';
+import PageContent from '@/components/templates/PageContent.vue';
 </script>
 
 <template>
@@ -12,24 +13,23 @@ import PageContent from '../components/templates/PageContent.vue';
         Facilis esse magni, illum ab distinctio, repellat sapiente quas necessitatibus, velit ut deserunt molestias non enim quis assumenda alias neque quia maxime! Consequuntur natus eligendi et, voluptate suscipit sunt qui.
         Alias placeat itaque animi quam facilis.
       </p>
+      <PresentationPanel>
+        <template #content>
+          Praesentium, ea commodi. Magnam, reiciendis natus, odit esse dolorum dignissimos debitis cumque sed beatae excepturi laboriosam? Architecto nulla ducimus sunt, dolorem voluptatibus unde facere.
+          Nisi sed labore suscipit nihil recusandae necessitatibus explicabo, earum esse aut asperiores deleniti. Blanditiis, molestias. Tenetur, dolores. Accusantium fuga velit expedita odit praesentium veniam dolorum, quos est molestias. Distinctio, laboriosam.
+          Officiis magnam, iure obcaecati adipisci quos exercitationem reprehenderit ut, est, dolore architecto molestiae! Error ratione rem, qui nisi vero ducimus a sit delectus quidem voluptatem illo! Fuga atque ipsum molestias?
+          Fugiat maxime cumque tenetur accusamus nam, odio ea laudantium, quisquam deleniti inventore corrupti eligendi ipsam animi aliquam ut earum perspiciatis modi officiis? Deleniti pariatur et eveniet aperiam ullam mollitia culpa!
+          Eaque odit nam saepe cum mollitia beatae quisquam eligendi facilis facere laboriosam praesentium error expedita recusandae non, quae eos nostrum neque fugit nisi provident! Vero veritatis eveniet quaerat quisquam cumque.
+          Quae aut deserunt hic expedita quam est. Necessitatibus, at esse. Quisquam deserunt ex eligendi consequuntur, esse nobis illum ad soluta harum, accusantium tempora asperiores vero dicta eaque quo. Voluptatem, enim!
+          Reprehenderit asperiores nulla aperiam eaque, soluta laudantium quibusdam qui vitae possimus delectus explicabo facere aliquid, amet nisi rem deserunt, rerum laboriosam. Vel voluptatibus in debitis nam esse, modi quisquam cupiditate.
+          Ex quisquam at libero, ea consectetur nesciunt doloribus, qui neque, in odio perspiciatis possimus repellat debitis aliquam quia beatae voluptate nostrum! Repellendus odio expedita adipisci quis ea. Quos, quia vitae.
+          Quo ipsa, numquam voluptatum deserunt assumenda sunt adipisci vero ea illum aliquam. Laborum iste ad corrupti, ut sequi eum hic? Perferendis, minus! Ducimus at cupiditate sit earum totam temporibus in?
+          Et quod molestias, aliquam earum soluta maxime culpa fugit vitae quasi doloribus. Autem beatae optio, cumque, deserunt earum sint ut quasi fugit cum explicabo aperiam quae, dignissimos ratione error minima.
+          Sequi similique tempore ea eum, qui sint. Fugiat cupiditate itaque ea magni quaerat officia, a rem et? Reprehenderit autem quis incidunt facere atque? Voluptas accusamus est atque, quo architecto ut!
+          Ea recusandae illo repellendus.
+        </template>
+      </PresentationPanel>
       <h2>sit amet consectetur adipisicing elit</h2>
-      <p>
-        Praesentium, ea commodi. Magnam, reiciendis natus, odit esse dolorum dignissimos debitis cumque sed beatae excepturi laboriosam? Architecto nulla ducimus sunt, dolorem voluptatibus unde facere.
-        Nisi sed labore suscipit nihil recusandae necessitatibus explicabo, earum esse aut asperiores deleniti. Blanditiis, molestias. Tenetur, dolores. Accusantium fuga velit expedita odit praesentium veniam dolorum, quos est molestias. Distinctio, laboriosam.
-        Officiis magnam, iure obcaecati adipisci quos exercitationem reprehenderit ut, est, dolore architecto molestiae! Error ratione rem, qui nisi vero ducimus a sit delectus quidem voluptatem illo! Fuga atque ipsum molestias?
-        Fugiat maxime cumque tenetur accusamus nam, odio ea laudantium, quisquam deleniti inventore corrupti eligendi ipsam animi aliquam ut earum perspiciatis modi officiis? Deleniti pariatur et eveniet aperiam ullam mollitia culpa!
-        Eaque odit nam saepe cum mollitia beatae quisquam eligendi facilis facere laboriosam praesentium error expedita recusandae non, quae eos nostrum neque fugit nisi provident! Vero veritatis eveniet quaerat quisquam cumque.
-        Quae aut deserunt hic expedita quam est. Necessitatibus, at esse. Quisquam deserunt ex eligendi consequuntur, esse nobis illum ad soluta harum, accusantium tempora asperiores vero dicta eaque quo. Voluptatem, enim!
-        Reprehenderit asperiores nulla aperiam eaque, soluta laudantium quibusdam qui vitae possimus delectus explicabo facere aliquid, amet nisi rem deserunt, rerum laboriosam. Vel voluptatibus in debitis nam esse, modi quisquam cupiditate.
-        Ex quisquam at libero, ea consectetur nesciunt doloribus, qui neque, in odio perspiciatis possimus repellat debitis aliquam quia beatae voluptate nostrum! Repellendus odio expedita adipisci quis ea. Quos, quia vitae.
-        Quo ipsa, numquam voluptatum deserunt assumenda sunt adipisci vero ea illum aliquam. Laborum iste ad corrupti, ut sequi eum hic? Perferendis, minus! Ducimus at cupiditate sit earum totam temporibus in?
-        Et quod molestias, aliquam earum soluta maxime culpa fugit vitae quasi doloribus. Autem beatae optio, cumque, deserunt earum sint ut quasi fugit cum explicabo aperiam quae, dignissimos ratione error minima.
-        Sequi similique tempore ea eum, qui sint. Fugiat cupiditate itaque ea magni quaerat officia, a rem et? Reprehenderit autem quis incidunt facere atque? Voluptas accusamus est atque, quo architecto ut!
-        Ea recusandae illo repellendus.
-      </p>
-      <h2>
-        Velit magnam ad rem voluptatibus repudiandae eius
-      </h2>
       <p>
         Architecto voluptate atque autem dicta ratione laudantium quis, consequatur sequi non provident commodi at tenetur quaerat? Perspiciatis, distinctio omnis!
         Esse, animi quasi. Ipsam, culpa cumque quibusdam accusamus velit incidunt ipsa sunt provident expedita placeat quisquam magni perspiciatis rem eligendi sapiente, tempora est. Officia beatae non eligendi et, inventore nostrum?

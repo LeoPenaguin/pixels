@@ -66,7 +66,6 @@ onUnmounted(() => {
 
 <style lang="scss" scropped>
 .board-content {
-  border: 4px solid rgb(128, 255, 0);
   height: 100%;
   box-sizing: border-box;
   position: relative;
@@ -77,7 +76,6 @@ onUnmounted(() => {
   &__slot {
     position: absolute;
     transform-origin: center;
-    outline: 4px solid red;
   }
 }
 </style>
