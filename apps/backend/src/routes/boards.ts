@@ -14,9 +14,7 @@ boardsRouter.get('/api/board/:id', async (req:Request, res:Response) => {
 })
 
 boardsRouter.post('/api/board', async (req:Request, res:Response) => {
-    const {name} = req.body
-
-    const board = new Board({name})
+    const board = new Board(req.body)
     await board.save()
 
     res.status(201).json(board)

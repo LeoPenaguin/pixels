@@ -31,7 +31,7 @@ onMounted(() => {
           :key="board._id"
           :to="{ name: 'pixel-board', params: { id: board._id } }"
         >
-          {{ board._id }}
+          {{ board.name }} - {{ board.width }}x{{ board.height }}<br>
         </RouterLink>
       </div>
       <PresentationPanel>
