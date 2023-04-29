@@ -14,14 +14,12 @@ function toggleMenu() {
 
 <template>
   <div class="nav-dropdown">
-    <div class="nav-dropdown__top">
-      <NavButton
-        :active="isOpen"
-        text="Leo PNG"
-        :icon="'user'"
-        @click="toggleMenu"
-      />
-    </div>
+    <NavButton
+      :active="isOpen"
+      text="Leo PNG"
+      :icon="'user'"
+      @click="toggleMenu"
+    />
     <ul
       v-if="isOpen"
       class="nav-dropdown__menu"
@@ -38,15 +36,11 @@ function toggleMenu() {
 
 .nav-dropdown {
   position: relative;
-  &__top {
-    display: block;
-  }
+  height: 100%;
   &__menu {
     position: absolute;
-    background: red;
     top: 45px;
     right: 0;
-    height: fit-content;
     margin: 0;
     padding: 5px;
     background: $tertiary-background-color;

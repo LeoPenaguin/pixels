@@ -1,9 +1,20 @@
 <script lang="ts" setup>
 import { onMounted } from 'vue';
 import pixelsPng from '@/assets/pixels.png'
+import { useBoardStore } from '@/stores/board';
+import { storeToRefs } from 'pinia';
+
+const boardStore = useBoardStore()
+const { board } = storeToRefs(boardStore)
 
 onMounted(() => {
-    const ctx = document.getElementById("game").getContext("2d");
+    const canvasElement = document.getElementById("game") as HTMLCanvasElement
+    const ctx = canvasElement.getContext("2d") as CanvasRenderingContext2D;
+
+    console.log(board.value?.width, board.value?.height)
+
+    canvasElement.width = board.value?.width
+    canvasElement.height = board.value?.height
 
     const image = new Image();
     image.onload = () => {
@@ -15,19 +26,25 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="pixel-map">
+  <div
+    class="pixel-map"
+  >
     <canvas
       id="game"
-      width="1000"
-      height="1000"
     >Pixels</canvas>
   </div>
 </template>
 
 <style lang="scss" scoped>
-canvas {
-  height: 600px;
-  aspect-ratio: 1;
-  image-rendering: pixelated;
+.pixel-map {
+  background: red;
+  display: flex;
+  outline: 15px 15px red;
+  width: 1000px;
+  height: 1000px;
+  canvas {
+    aspect-ratio: 1;
+    image-rendering: pixelated;
+  }
 }
 </style>

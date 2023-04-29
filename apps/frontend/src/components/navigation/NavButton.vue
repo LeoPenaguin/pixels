@@ -28,15 +28,17 @@ defineEmits(['click'])
 @import '@/assets/style/theme.scss';
 
 button {
-  padding: $m1 $m2;
+  padding: 0 $m2;
   color: $text-color;
-  border: pxtorem(2) solid currentColor;
-  background: none;
+  background: rgba($background-color, 0.7);
+  box-shadow: 0px 0px $m1 0px rgba($text-color, 0.4);
   outline: 0;
   border-radius: $m2;
+  border: 0;
   display: flex;
   align-items: center;
   gap: $m2;
+  height: 100%;
   cursor: pointer;
   &.is-active {
     color: $active-text-color;
