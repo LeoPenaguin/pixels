@@ -1,6 +1,17 @@
 <script lang="ts" setup>
+import { getBoards } from '@/api/board';
 import PresentationPanel from '@/components/homePage/PresentationPanel.vue';
 import PageContent from '@/components/templates/PageContent.vue';
+import { onMounted, ref } from 'vue';
+import { RouterLink } from 'vue-router'
+
+const boards = ref()
+
+onMounted(() => {
+    getBoards().then((response) => {
+        boards.value = response
+    })
+})
 </script>
 
 <template>
@@ -13,6 +24,16 @@ import PageContent from '@/components/templates/PageContent.vue';
         Facilis esse magni, illum ab distinctio, repellat sapiente quas necessitatibus, velit ut deserunt molestias non enim quis assumenda alias neque quia maxime! Consequuntur natus eligendi et, voluptate suscipit sunt qui.
         Alias placeat itaque animi quam facilis.
       </p>
+      {{ boards }}
+      <div v-if="boards">
+        <RouterLink
+          v-for="board in boards"
+          :key="board._id"
+          :to="{ name: 'pixel-board', params: { id: board._id } }"
+        >
+          {{ board._id }}
+        </RouterLink>
+      </div>
       <PresentationPanel>
         <template #content>
           Praesentium, ea commodi. Magnam, reiciendis natus, odit esse dolorum dignissimos debitis cumque sed beatae excepturi laboriosam? Architecto nulla ducimus sunt, dolorem voluptatibus unde facere.

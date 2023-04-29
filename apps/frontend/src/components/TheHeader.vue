@@ -1,6 +1,9 @@
 <script setup lang="ts">
+import NavCurrentBoard from './navigation/NavCurrentBoard.vue';
 import NavDropdown from './navigation/NavDropdown.vue'
 import { RouterLink } from 'vue-router'
+
+
 </script>
 
 <template>
@@ -14,11 +17,13 @@ import { RouterLink } from 'vue-router'
           >
         </div>
       </RouterLink>
-      <RouterLink to="/pixel-board">
-        Pixel Board
-      </RouterLink>
     </div>
-    <NavDropdown />
+    <div class="nav-center">
+      <NavCurrentBoard />
+    </div>
+    <div class="nav-right">
+      <NavDropdown />
+    </div>
   </nav>
 </template>
 
@@ -28,6 +33,16 @@ import { RouterLink } from 'vue-router'
 nav {
   display: flex;
   justify-content: space-between;
+  align-items: stretch;
+  gap: $m3;
+
+  .nav-left,
+  .nav-center,
+  .nav-right {
+    display: flex;
+    align-items: center;
+  }
+
   .nav-left {
     display: flex;
     align-items: flex-start;
@@ -36,15 +51,12 @@ nav {
       height: 100%;
     }
     .home-link-logo {
-      border-radius: $m4;
       height: 100%;
       img {
         height: 100%;
       }
-      &:hover {
-        background: $background-color;
-      }
     }
   }
+
 }
 </style>
