@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { onMounted } from 'vue';
-import catPng from '@/assets/cat.png'
+import pixelsPng from '@/assets/pixels.png'
 
 onMounted(() => {
     const ctx = document.getElementById("game").getContext("2d");
@@ -9,7 +9,7 @@ onMounted(() => {
     image.onload = () => {
         ctx.drawImage(image, 0, 0);
     };
-    image.src = catPng;
+    image.src = pixelsPng;
 })
 
 </script>
@@ -18,16 +18,16 @@ onMounted(() => {
   <div class="pixel-map">
     <canvas
       id="game"
-      width="128"
-      height="128"
+      width="1000"
+      height="1000"
     >Pixels</canvas>
   </div>
 </template>
 
 <style lang="scss" scoped>
 canvas {
-  width: 512px;
-  height: 512px;
+  height: 600px;
+  aspect-ratio: 1;
   image-rendering: pixelated;
 }
 </style>

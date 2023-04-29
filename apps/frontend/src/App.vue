@@ -16,19 +16,22 @@ import NavAndContent from './components/templates/NavAndContent.vue';
 </template>
 
 <style lang="scss">
+@import '@/assets/style/theme.scss';
+
 html {
   overflow: hidden;
 }
 
 body {
   margin: 0;
-  color: white;
+  color: $text-color;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   overflow: hidden;
+  background-color: $background-color;
 }
 
 a {
-  color: rgb(0, 162, 255);
+  color: $link-color;
   text-decoration: none;
 }
 </style>

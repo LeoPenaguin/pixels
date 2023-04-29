@@ -14,16 +14,19 @@
 </template>
 
 <style lang="scss" scropped>
+@import '@/assets/style/theme.scss';
+
 .nav-and-content {
   height: 100vh;
   display: flex;
   flex-direction: column;
   &__nav {
-    background-color: rgb(31, 31, 31);
-    padding: 0.5rem;
+    // background-color: $secondary-background-color;
+    box-shadow: 0px 0px $m1 0px rgba(0, 0, 0, 0.5);
+    padding: $m2;
+    z-index: 1000;
   }
   &__content {
-    background-color: rgb(39, 39, 39);
     flex: 1;
     overflow: auto;
   }
