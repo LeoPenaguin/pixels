@@ -1,6 +1,6 @@
 
 function getPixels() {
-    return fetch('localhost:3001/api/pixels')
+    return fetch('localhost:3000/api/pixels')
         .then((response) => {
             console.log(response)
         })
