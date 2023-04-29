@@ -1,17 +1,12 @@
 <template>
-  <NavButton
-    v-if="board"
-    :text="board.name"
-    icon="settings"
-    @click="goToBoard"
-  />
+  <NavButton v-if="board" :text="board.name" icon="settings" @click="goToBoard" />
 </template>
 
 <script setup lang="ts">
-import { useBoardStore } from '@/stores/board';
-import { storeToRefs } from 'pinia';
-import NavButton from './NavButton.vue';
-import {useRouter} from 'vue-router'
+import { useBoardStore } from '@/stores/board'
+import { storeToRefs } from 'pinia'
+import NavButton from './NavButton.vue'
+import { useRouter } from 'vue-router'
 
 const boardStore = useBoardStore()
 const router = useRouter()
@@ -19,7 +14,7 @@ const router = useRouter()
 const { board } = storeToRefs(boardStore)
 
 function goToBoard() {
-    router.push({ name: 'pixel-board', params: { id: board.value._id } })
+  router.push({ name: 'pixel-board', params: { id: board.value._id } })
 }
 </script>
 

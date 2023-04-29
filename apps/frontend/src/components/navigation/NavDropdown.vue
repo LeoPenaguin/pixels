@@ -1,29 +1,21 @@
 <script lang="ts" setup>
-import { ref } from 'vue';
-import EyeIcon from '../icons/eyeIcon.vue';
-import LogoutIcon from '../icons/logoutIcon.vue';
-import SettingsIcon from '../icons/settingsIcon.vue';
-import NavButton from './NavButton.vue';
+import { ref } from 'vue'
+import EyeIcon from '../icons/eyeIcon.vue'
+import LogoutIcon from '../icons/logoutIcon.vue'
+import SettingsIcon from '../icons/settingsIcon.vue'
+import NavButton from './NavButton.vue'
 
 const isOpen = ref(false)
 
 function toggleMenu() {
-    isOpen.value = !isOpen.value
+  isOpen.value = !isOpen.value
 }
 </script>
 
 <template>
   <div class="nav-dropdown">
-    <NavButton
-      :active="isOpen"
-      text="Leo PNG"
-      :icon="'user'"
-      @click="toggleMenu"
-    />
-    <ul
-      v-if="isOpen"
-      class="nav-dropdown__menu"
-    >
+    <NavButton :active="isOpen" text="Leo PNG" :icon="'user'" @click="toggleMenu" />
+    <ul v-if="isOpen" class="nav-dropdown__menu">
       <li><EyeIcon /><span>Profile</span></li>
       <li><SettingsIcon /><span>Settings</span></li>
       <li><LogoutIcon /><span>Logout</span></li>

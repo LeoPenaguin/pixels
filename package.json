@@ -11,12 +11,15 @@
     "dev:backend": "cd apps/backend && pnpm dev",
     "dev:frontend": "cd apps/frontend && pnpm dev",
     "dev": "concurrently -P --names \"'backend','frontend'\" -c \"bgBlue.bold,bgGreen.bold\" \"pnpm dev:backend\"  \"pnpm dev:frontend\" --",
-    "build:frontend": "cd apps/frontend && pnpm build"
+    "build:frontend": "cd apps/frontend && pnpm build",
+    "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore"
   },
   "keywords": [],
   "author": "Léo Penaguin",
   "license": "MIT",
   "devDependencies": {
-    "concurrently": "^8.0.1"
+    "concurrently": "^8.0.1",
+    "eslint-config-prettier": "^8.8.0",
+    "eslint-plugin-prettier": "^4.2.1"
   }
 }

@@ -7,6 +7,12 @@ importers:
       concurrently:
         specifier: ^8.0.1
         version: 8.0.1
+      eslint-config-prettier:
+        specifier: ^8.8.0
+        version: 8.8.0(eslint@8.38.0)
+      eslint-plugin-prettier:
+        specifier: ^4.2.1
+        version: 4.2.1(eslint-config-prettier@8.8.0)(eslint@8.38.0)(prettier@2.8.7)
 
   apps/backend:
     dependencies:

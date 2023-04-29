@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { RouterView } from 'vue-router'
-import TheHeader from './components/TheHeader.vue';
-import NavAndContent from './components/templates/NavAndContent.vue';
+import TheHeader from './components/TheHeader.vue'
+import NavAndContent from './components/templates/NavAndContent.vue'
 </script>
 
 <template>
