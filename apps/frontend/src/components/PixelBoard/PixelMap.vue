@@ -2,17 +2,23 @@
 import { onMounted } from 'vue'
 import { useBoardStore } from '@/stores/board'
 import { storeToRefs } from 'pinia'
+import { useColorStore } from '@/stores/color'
+
+const colorStore = useColorStore()
 
 const boardStore = useBoardStore()
 const { board } = storeToRefs(boardStore)
+const { colors } = storeToRefs(colorStore)
+
 let canvasElement: HTMLCanvasElement | null = null
 let ctx: CanvasRenderingContext2D | null = null
-const colors = ['#571746', '#90113F', '#C71E39', '#FD5734', '#FEC302']
 
 function getRandomColor() {
   const min = Math.ceil(0)
-  const max = Math.floor(colors.length)
-  return colors[Math.floor(Math.random() * (max - min) + min)] // The maximum is exclusive and the minimum is inclusive
+  const max = Math.floor(colors.value.length)
+  const color = colors.value[Math.floor(Math.random() * (max - min) + min)]
+  console.log(color)
+  return color.value
 }
 
 onMounted(() => {

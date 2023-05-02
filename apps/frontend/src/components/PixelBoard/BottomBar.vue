@@ -1,8 +1,22 @@
 <template>
   <div class="bottom-bar">
-    <div class="bottom-bar__content">Hello</div>
+    <div class="bottom-bar__content">
+      <div class="content__colors">
+        <div v-for="color in colors" :key="color._id" class="colors__item">
+          {{ color.name }} - {{ color.value }}
+        </div>
+      </div>
+    </div>
   </div>
 </template>
+
+<script lang="ts" setup>
+import { useColorStore } from '@/stores/color'
+import { storeToRefs } from 'pinia'
+
+const colorStore = useColorStore()
+const { colors } = storeToRefs(colorStore)
+</script>
 
 <style lang="scss">
 @import '@/assets/style/theme.scss';
