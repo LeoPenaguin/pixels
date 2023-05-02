@@ -1,5 +1,7 @@
+import { BASE_URL } from './config'
+
 function getColors() {
-  return fetch('localhost:3000/api/colors').then((response) => {
+  return fetch(BASE_URL + '/colors').then((response) => {
     console.log(response)
   })
 }

@@ -20,4 +20,19 @@ boardsRouter.post('/api/board', async (req: Request, res: Response) => {
   res.status(201).json(board)
 })
 
+boardsRouter.delete('/api/board/:id', async (req: Request, res: Response) => {
+  Board.deleteOne({ _id: req.params.id })
+    .then(() => {
+      console.log('ok')
+      res.status(201).json({ ok: true })
+    })
+    .catch((err: Error) => {
+      console.log('500 - KO', err)
+      res.status(500).json({ ok: false })
+    })
+    .finally(() => {
+      console.log('Finished')
+    })
+})
+
 export default boardsRouter

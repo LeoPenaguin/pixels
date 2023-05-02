@@ -1,6 +1,5 @@
 <template>
-  <button :class="{ 'is-active': active }"
-@click="$emit('click')">
+  <button :class="{ 'is-active': active }" @click="$emit('click')">
     <IconComponent v-if="icon" />
     <span>{{ text }}</span>
   </button>

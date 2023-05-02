@@ -8,7 +8,7 @@ app.use(cors())
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
-const port = 3000
+const port = 3005
 
 mongoose.connect('mongodb://127.0.0.1:27017/pixels').then(() => {
   console.log('connected to database')

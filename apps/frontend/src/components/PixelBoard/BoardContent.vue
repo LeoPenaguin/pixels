@@ -46,8 +46,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div ref="container"
-class="board-content" @wheel="zoom">
+  <div ref="container" class="board-content" @wheel="zoom">
     <div
       ref="slot"
       class="board-content__slot"
