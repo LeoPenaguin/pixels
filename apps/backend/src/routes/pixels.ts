@@ -1,22 +1,22 @@
-import express, {Request, Response} from 'express'
-import { Pixel } from '../models/pixel';
+import express, { Request, Response } from 'express'
+import { Pixel } from '../models/pixel'
 
-var pixelsRouter = express.Router();
+const pixelsRouter = express.Router()
 
-pixelsRouter.get('/api/pixels', async (req:Request, res:Response) => {
-    const {name, position, boardId} = req.body
+pixelsRouter.get('/api/pixels', async (req: Request, res: Response) => {
+  const { boardId } = req.body
 
-    const pixel = await Pixel.find({_board: boardId})
-    res.json(pixel)
+  const pixel = await Pixel.find({ _board: boardId })
+  res.json(pixel)
 })
 
-pixelsRouter.post('/api/pixel', async (req:Request, res:Response) => {
-    const {name, position, boardId} = req.body
+pixelsRouter.post('/api/pixel', async (req: Request, res: Response) => {
+  const { name, position, boardId } = req.body
 
-    const pixel = new Pixel({name, position, _board: boardId})
-    await pixel.save()
+  const pixel = new Pixel({ name, position, _board: boardId })
+  await pixel.save()
 
-    res.status(201).json(pixel)
+  res.status(201).json(pixel)
 })
 
-export default pixelsRouter;
+export default pixelsRouter

@@ -1,9 +1,7 @@
 <script setup lang="ts">
-import NavCurrentBoard from './navigation/NavCurrentBoard.vue';
+import NavCurrentBoard from './navigation/NavCurrentBoard.vue'
 import NavDropdown from './navigation/NavDropdown.vue'
 import { RouterLink } from 'vue-router'
-
-
 </script>
 
 <template>
@@ -11,10 +9,7 @@ import { RouterLink } from 'vue-router'
     <div class="nav-left">
       <RouterLink to="/">
         <div class="home-link-logo">
-          <img
-            src="../assets/logo.png"
-            alt="The logo"
-          >
+          <img src="../assets/logo.png" alt="The logo" />
         </div>
       </RouterLink>
     </div>
@@ -57,6 +52,5 @@ nav {
       }
     }
   }
-
 }
 </style>

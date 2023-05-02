@@ -1,8 +1,8 @@
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import { defineStore } from 'pinia'
 
 export const useBoardStore = defineStore('board', () => {
-    const board = ref()
+  const board = ref()
 
-    return { board }
+  return { board }
 })

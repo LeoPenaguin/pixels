@@ -1,59 +1,52 @@
-<script lang='ts' setup>
-import { onMounted, onUnmounted, ref } from 'vue';
+<script lang="ts" setup>
+import { onMounted, onUnmounted, ref } from 'vue'
 
 const container = ref()
 const slot = ref()
 
-const scale = ref(1);
-const translateX = ref(0);
-const translateY = ref(0);
+const scale = ref(1)
+const translateX = ref(0)
+const translateY = ref(0)
 
-let dragging = false;
+let dragging = false
 
 const zoom = (event: WheelEvent) => {
-    if (!dragging) {
-        const zoomFactor = event.deltaY > 0 ? 0.9 : 1.1;
-        scale.value *= zoomFactor;
-    }
-};
+  if (!dragging) {
+    const zoomFactor = event.deltaY > 0 ? 0.9 : 1.1
+    scale.value *= zoomFactor
+  }
+}
 
 const startDrag = () => {
-    dragging = true;
-};
+  dragging = true
+}
 
 const stopDrag = () => {
-    dragging = false;
-};
+  dragging = false
+}
 
 const drag = (event: MouseEvent) => {
-    if (dragging) {
-        translateX.value = translateX.value + event.movementX / scale.value;
-        translateY.value = translateY.value + event.movementY / scale.value;
-    }
-};
+  if (dragging) {
+    translateX.value = translateX.value + event.movementX / scale.value
+    translateY.value = translateY.value + event.movementY / scale.value
+  }
+}
 
 onMounted(() => {
-    // translateX.value = - slot.value.offsetWidth / 2
-    // translateY.value = - slot.value.offsetHeight / 2
-
-    container.value?.addEventListener('mousedown', startDrag);
-    container.value?.addEventListener('mouseup', stopDrag);
-    container.value?.addEventListener('mousemove', drag);
-});
+  container.value?.addEventListener('mousedown', startDrag)
+  container.value?.addEventListener('mouseup', stopDrag)
+  container.value?.addEventListener('mousemove', drag)
+})
 
 onUnmounted(() => {
-    container.value?.removeEventListener('mousedown', startDrag);
-    container.value?.removeEventListener('mouseup', stopDrag);
-    container.value?.removeEventListener('mousemove', drag);
-});
+  container.value?.removeEventListener('mousedown', startDrag)
+  container.value?.removeEventListener('mouseup', stopDrag)
+  container.value?.removeEventListener('mousemove', drag)
+})
 </script>
 
 <template>
-  <div
-    ref="container"
-    class="board-content"
-    @wheel="zoom"
-  >
+  <div ref="container" class="board-content" @wheel="zoom">
     <div
       ref="slot"
       class="board-content__slot"
@@ -66,6 +59,7 @@ onUnmounted(() => {
 
 <style lang="scss" scropped>
 .board-content {
+  background: rgb(41, 41, 41);
   height: 100%;
   box-sizing: border-box;
   position: relative;

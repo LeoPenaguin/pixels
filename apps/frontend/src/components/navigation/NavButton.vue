@@ -1,15 +1,12 @@
 <template>
-  <button
-    :class="{'is-active' : active}"
-    @click="$emit('click')"
-  >
+  <button :class="{ 'is-active': active }" @click="$emit('click')">
     <IconComponent v-if="icon" />
     <span>{{ text }}</span>
   </button>
 </template>
 
 <script lang="ts" setup>
-import { defineAsyncComponent } from 'vue';
+import { defineAsyncComponent } from 'vue'
 
 const props = defineProps<{
   active?: Boolean
@@ -17,9 +14,7 @@ const props = defineProps<{
   icon?: 'eye' | 'home' | 'logout' | 'settings' | 'user'
 }>()
 
-const IconComponent = defineAsyncComponent(() =>
-    import(`../icons/${props.icon}Icon.vue`)
-)
+const IconComponent = defineAsyncComponent(() => import(`../icons/${props.icon}Icon.vue`))
 
 defineEmits(['click'])
 </script>

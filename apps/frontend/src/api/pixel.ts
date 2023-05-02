@@ -1,9 +1,9 @@
+import { BASE_URL } from './config'
 
 function getPixels() {
-    return fetch('localhost:3001/api/pixels')
-        .then((response) => {
-            console.log(response)
-        })
+  return fetch(BASE_URL + '/pixels').then((response) => {
+    console.log(response)
+  })
 }
 
 export { getPixels }

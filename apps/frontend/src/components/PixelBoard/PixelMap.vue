@@ -1,37 +1,45 @@
 <script lang="ts" setup>
-import { onMounted } from 'vue';
-import pixelsPng from '@/assets/pixels.png'
-import { useBoardStore } from '@/stores/board';
-import { storeToRefs } from 'pinia';
+import { onMounted } from 'vue'
+import { useBoardStore } from '@/stores/board'
+import { storeToRefs } from 'pinia'
 
 const boardStore = useBoardStore()
 const { board } = storeToRefs(boardStore)
+let canvasElement: HTMLCanvasElement | null = null
+let ctx: CanvasRenderingContext2D | null = null
+const colors = ['#571746', '#90113F', '#C71E39', '#FD5734', '#FEC302']
+
+function getRandomColor() {
+  const min = Math.ceil(0)
+  const max = Math.floor(colors.length)
+  return colors[Math.floor(Math.random() * (max - min) + min)] // The maximum is exclusive and the minimum is inclusive
+}
 
 onMounted(() => {
-    const canvasElement = document.getElementById("game") as HTMLCanvasElement
-    const ctx = canvasElement.getContext("2d") as CanvasRenderingContext2D;
+  canvasElement = document.getElementById('game') as HTMLCanvasElement
 
-    console.log(board.value?.width, board.value?.height)
+  canvasElement.width = board.value?.width
+  canvasElement.height = board.value?.height
 
-    canvasElement.width = board.value?.width
-    canvasElement.height = board.value?.height
+  canvasElement.offscreenCanvas = document.createElement('canvas')
+  canvasElement.offscreenCanvas.width = canvasElement.width
+  canvasElement.offscreenCanvas.height = canvasElement.height
+  ctx = canvasElement.offscreenCanvas.getContext('2d', { alpha: false }) as CanvasRenderingContext2D
 
-    const image = new Image();
-    image.onload = () => {
-        ctx.drawImage(image, 0, 0);
-    };
-    image.src = pixelsPng;
+  for (let col = 0; col < board.value?.width; col++) {
+    for (let row = 0; row < board.value?.height; row++) {
+      ctx.fillStyle = getRandomColor()
+      ctx.fillRect(col, row, 1, 1)
+    }
+  }
+
+  canvasElement.getContext('2d').drawImage(canvasElement.offscreenCanvas, 0, 0)
 })
-
 </script>
 
 <template>
-  <div
-    class="pixel-map"
-  >
-    <canvas
-      id="game"
-    >Pixels</canvas>
+  <div class="pixel-map">
+    <canvas id="game">Pixels</canvas>
   </div>
 </template>
 

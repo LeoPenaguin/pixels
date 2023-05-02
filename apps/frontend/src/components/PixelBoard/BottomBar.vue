@@ -1,8 +1,6 @@
 <template>
   <div class="bottom-bar">
-    <div class="bottom-bar__content">
-      Hello
-    </div>
+    <div class="bottom-bar__content">Hello</div>
   </div>
 </template>
 

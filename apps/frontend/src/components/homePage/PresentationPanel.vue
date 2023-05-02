@@ -1,8 +1,6 @@
 <template>
   <div class="presentation-panel">
-    <slot name="content">
-      Empty
-    </slot>
+    <slot name="content"> Empty </slot>
     <slot name="action" />
   </div>
 </template>
