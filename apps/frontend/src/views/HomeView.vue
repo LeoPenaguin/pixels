@@ -47,11 +47,6 @@ onMounted(() => {
               {{ board.name }} - {{ board.width }}x{{ board.height }}<br />
             </RouterLink>
           </div>
-          <div v-if="colors">
-            <div v-for="color in colors" :key="color._id" :style="{ background: color.value }">
-              {{ color.name }} - {{ color.value }}<br />
-            </div>
-          </div>
           Praesentium, ea commodi. Magnam, reiciendis natus, odit esse dolorum dignissimos debitis
           cumque sed beatae excepturi laboriosam? Architecto nulla ducimus sunt, dolorem
           voluptatibus unde facere. Nisi sed labore suscipit nihil recusandae necessitatibus

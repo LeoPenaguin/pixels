@@ -1,64 +1,132 @@
 <script lang="ts" setup>
 import { onMounted } from 'vue'
-import { useBoardStore } from '@/stores/board'
 import { storeToRefs } from 'pinia'
 import { useColorStore } from '@/stores/color'
+import { postPixel } from '@/api/pixel'
 
 const colorStore = useColorStore()
 
-const boardStore = useBoardStore()
-const { board } = storeToRefs(boardStore)
-const { colors } = storeToRefs(colorStore)
+const { selectedColor } = storeToRefs(colorStore)
 
 let canvasElement: HTMLCanvasElement | null = null
+let cursorCanvasElement: HTMLCanvasElement | null = null
+let cursorContext: CanvasRenderingContext2D | null = null
 let ctx: CanvasRenderingContext2D | null = null
 
-function getRandomColor() {
-  const min = Math.ceil(0)
-  const max = Math.floor(colors.value.length)
-  const color = colors.value[Math.floor(Math.random() * (max - min) + min)]
-  console.log(color)
-  return color.value
-}
+const props = defineProps({
+  board: {
+    type: Object,
+    required: true
+  }
+})
 
-onMounted(() => {
+function initPixelMap() {
   canvasElement = document.getElementById('game') as HTMLCanvasElement
 
-  canvasElement.width = board.value?.width
-  canvasElement.height = board.value?.height
+  canvasElement.width = props.board.value?.width
+  canvasElement.height = props.board.value?.height
 
   canvasElement.offscreenCanvas = document.createElement('canvas')
   canvasElement.offscreenCanvas.width = canvasElement.width
   canvasElement.offscreenCanvas.height = canvasElement.height
-  ctx = canvasElement.offscreenCanvas.getContext('2d', { alpha: false }) as CanvasRenderingContext2D
+  ctx = canvasElement.offscreenCanvas.getContext('2d') as CanvasRenderingContext2D
 
-  for (let col = 0; col < board.value?.width; col++) {
-    for (let row = 0; row < board.value?.height; row++) {
-      ctx.fillStyle = getRandomColor()
-      ctx.fillRect(col, row, 1, 1)
-    }
-  }
+  props.board.pixels.value.forEach((pixel) => {
+    ctx.fillStyle = pixel.color.value
+    ctx.fillRect(pixel.col, pixel.row, 1, 1)
+  })
 
   canvasElement.getContext('2d').drawImage(canvasElement.offscreenCanvas, 0, 0)
+}
+
+function initCursor() {
+  cursorCanvasElement = document.getElementById('cursor') as HTMLCanvasElement
+  cursorContext = cursorCanvasElement.getContext('2d') as CanvasRenderingContext2D
+
+  cursorCanvasElement.width = props.board.width
+  cursorCanvasElement.height = props.board.height
+}
+
+function getMousePos(canvas: HTMLCanvasElement, evt: MouseEvent) {
+  var rect = canvas.getBoundingClientRect(), // abs. size of element
+    scaleX = canvas.width / rect.width, // relationship bitmap vs. element for x
+    scaleY = canvas.height / rect.height // relationship bitmap vs. element for y
+
+  return {
+    x: Math.trunc((evt.clientX - rect.left) * scaleX), // scale mouse coordinates after they have
+    y: Math.trunc((evt.clientY - rect.top) * scaleY) // been adjusted to be relative to element
+  }
+}
+
+async function clickCanvas(evt: MouseEvent) {
+  const pos = getMousePos(cursorCanvasElement, evt)
+
+  const pixel = await postPixel(selectedColor, props.board, pos.x, pos.y)
+
+  console.log(pixel)
+}
+
+function mouseMove(evt: MouseEvent) {
+  if (!cursorCanvasElement) {
+    return
+  }
+
+  const pos = getMousePos(cursorCanvasElement, evt)
+  console.log(pos)
+
+  cursorContext.clearRect(0, 0, props.board.width, props.board.height)
+  cursorContext.fillStyle = 'red'
+  cursorContext.fillRect(pos.x, pos.y, 1, 1)
+}
+
+function mouseLeave() {
+  cursorContext.clearRect(0, 0, props.board.width, props.board.height)
+}
+
+onMounted(() => {
+  initPixelMap()
+  initCursor()
 })
 </script>
 
 <template>
   <div class="pixel-map">
+    <canvas id="cursor" @mousemove="mouseMove" @mouseleave="mouseLeave" @click="clickCanvas"
+      >Cursor</canvas
+    >
     <canvas id="game">Pixels</canvas>
+    <div id="background"></div>
   </div>
 </template>
 
 <style lang="scss" scoped>
 .pixel-map {
-  background: red;
   display: flex;
-  outline: 15px 15px red;
   width: 1000px;
   height: 1000px;
+  position: relative;
   canvas {
     aspect-ratio: 1;
     image-rendering: pixelated;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+  }
+  #background {
+    z-index: 1;
+    background: white;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+  }
+  #game {
+    z-index: 2;
+  }
+  #cursor {
+    z-index: 3;
   }
 }
 </style>

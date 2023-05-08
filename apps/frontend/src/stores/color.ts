@@ -3,6 +3,7 @@ import { defineStore } from 'pinia'
 
 export const useColorStore = defineStore('color', () => {
   const colors = ref()
+  const selectedColor = ref()
 
-  return { colors }
+  return { colors, selectedColor }
 })

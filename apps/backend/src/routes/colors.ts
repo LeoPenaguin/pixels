@@ -1,5 +1,5 @@
 import express, { Request, Response } from 'express'
-import { Color } from '../models/colors'
+import { Color } from '../models'
 
 const colorsRouter = express.Router()
 
