@@ -1,6 +1,7 @@
-import mongoose from 'mongoose'
+import { Schema } from 'mongoose'
+import { IBoard } from '../types'
 
-const boardSchema = new mongoose.Schema({
+export default new Schema<IBoard>({
   name: {
     type: String,
     required: true
@@ -16,9 +17,11 @@ const boardSchema = new mongoose.Schema({
   height: {
     type: Number,
     required: true
-  }
+  },
+  pixels: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: 'Pixel'
+    }
+  ]
 })
-
-const Board = mongoose.model('Board', boardSchema)
-
-export { Board }

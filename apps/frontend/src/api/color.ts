@@ -1,9 +1,9 @@
 import { BASE_URL } from './config'
 
-function getColors() {
-  return fetch(BASE_URL + '/colors').then((response) => {
-    console.log(response)
-  })
+async function getColors() {
+  const rawResponse = await fetch(BASE_URL + '/colors')
+  const response = await rawResponse.json()
+  return response
 }
 
 export { getColors }

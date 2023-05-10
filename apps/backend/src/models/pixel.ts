@@ -1,6 +1,7 @@
-import mongoose from 'mongoose'
+import { Schema } from 'mongoose'
+import { IPixel } from '../types'
 
-const pixelSchema = new mongoose.Schema({
+export default new Schema<IPixel>({
   col: {
     type: Number,
     required: true
@@ -9,16 +10,5 @@ const pixelSchema = new mongoose.Schema({
     type: Number,
     required: true
   },
-  _color: {
-    type: mongoose.Schema.Types.ObjectId,
-    required: true
-  },
-  _board: {
-    type: mongoose.Schema.Types.ObjectId,
-    required: true
-  }
+  color: { type: Schema.Types.ObjectId, ref: 'Color' }
 })
-
-const Pixel = mongoose.model('Pixel', pixelSchema)
-
-export { Pixel }

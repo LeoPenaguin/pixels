@@ -1,22 +1,31 @@
 import express, { Request, Response } from 'express'
-import { Pixel } from '../models/pixel'
+import { Pixel, Color, Board } from '../models'
 
 const pixelsRouter = express.Router()
 
-pixelsRouter.get('/api/pixels', async (req: Request, res: Response) => {
-  const { boardId } = req.body
-
-  const pixel = await Pixel.find({ _board: boardId })
-  res.json(pixel)
-})
-
 pixelsRouter.post('/api/pixel', async (req: Request, res: Response) => {
-  const { name, position, boardId } = req.body
+  const { col, row, color, board } = req.body
 
-  const pixel = new Pixel({ name, position, _board: boardId })
-  await pixel.save()
+  const dbBoard = await Board.findById({ _id: board._id })
 
-  res.status(201).json(pixel)
+  if (!dbBoard) {
+    res.status(404).json({ ok: false, message: 'Board not found' })
+    return
+  }
+
+  const dbColor = await Color.findById({ col, row, _id: color._id })
+
+  if (!dbColor) {
+    res.status(404).json({ ok: false, message: 'Color not found' })
+    return
+  }
+
+  const newPixel = new Pixel({ col, row, color: dbColor._id })
+  dbBoard.pixels.push(newPixel._id)
+
+  await dbBoard.save()
+
+  res.status(201).json({ dbBoard: dbBoard.populate('pixels') })
 })
 
 export default pixelsRouter
