@@ -23,15 +23,15 @@ const props = defineProps({
 function initPixelMap() {
   canvasElement = document.getElementById('game') as HTMLCanvasElement
 
-  canvasElement.width = props.board.value?.width
-  canvasElement.height = props.board.value?.height
+  canvasElement.width = props.board.width
+  canvasElement.height = props.board.height
 
   canvasElement.offscreenCanvas = document.createElement('canvas')
   canvasElement.offscreenCanvas.width = canvasElement.width
   canvasElement.offscreenCanvas.height = canvasElement.height
   ctx = canvasElement.offscreenCanvas.getContext('2d') as CanvasRenderingContext2D
 
-  props.board.pixels.value.forEach((pixel) => {
+  props.board.pixels.forEach((pixel) => {
     ctx.fillStyle = pixel.color.value
     ctx.fillRect(pixel.col, pixel.row, 1, 1)
   })
@@ -61,18 +61,17 @@ function getMousePos(canvas: HTMLCanvasElement, evt: MouseEvent) {
 async function clickCanvas(evt: MouseEvent) {
   const pos = getMousePos(cursorCanvasElement, evt)
 
-  const pixel = await postPixel(selectedColor, props.board, pos.x, pos.y)
+  const pixel = await postPixel(selectedColor.value, props.board, pos.x, pos.y)
 
   console.log(pixel)
 }
 
 function mouseMove(evt: MouseEvent) {
-  if (!cursorCanvasElement) {
+  if (!cursorCanvasElement && !cursorContext) {
     return
   }
 
   const pos = getMousePos(cursorCanvasElement, evt)
-  console.log(pos)
 
   cursorContext.clearRect(0, 0, props.board.width, props.board.height)
   cursorContext.fillStyle = 'red'
@@ -80,10 +79,28 @@ function mouseMove(evt: MouseEvent) {
 }
 
 function mouseLeave() {
+  if (!cursorCanvasElement && !cursorContext) {
+    return
+  }
+
   cursorContext.clearRect(0, 0, props.board.width, props.board.height)
 }
 
+function initWebSocket() {
+  const connection = new WebSocket('ws://localhost:3006')
+
+  connection.onmessage = function (event: MessageEvent) {
+    console.log('onmessage', event.data)
+  }
+
+  connection.onopen = (event: Event) => {
+    console.log('onopen', event)
+    console.log('Successfully connected to the echo websocket server...')
+  }
+}
+
 onMounted(() => {
+  initWebSocket()
   initPixelMap()
   initCursor()
 })

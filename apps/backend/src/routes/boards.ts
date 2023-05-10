@@ -1,7 +1,6 @@
 import express, { Request, Response } from 'express'
-import { Board, Pixel } from '../models'
-import { IPixel } from '../types'
-import { ObjectId } from 'mongoose'
+import { Board } from '../models'
+import board from '../models/board'
 
 const boardsRouter = express.Router()
 
@@ -12,6 +11,7 @@ boardsRouter.get('/api/boards', async (req: Request, res: Response) => {
 
 boardsRouter.get('/api/board/:id', async (req: Request, res: Response) => {
   const board = await Board.findById(req.params.id).populate('pixels')
+  await board?.populate('pixels.color')
   res.status(201).json(board)
 })
 

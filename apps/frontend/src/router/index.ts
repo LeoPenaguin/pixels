@@ -19,20 +19,15 @@ const router = createRouter({
       path: '/board/:id',
       name: 'pixel-board',
       component: PixelBoardView,
-      beforeEnter(to, from, next) {
+      async beforeEnter(to, from, next) {
         const colorStore = useColorStore()
         const boardStore = useBoardStore()
 
         const { colors } = storeToRefs(colorStore)
         const { board } = storeToRefs(boardStore)
 
-        getColors().then((response) => {
-          colors.value = response
-        })
-
-        getBoard(to.params.id as string).then((response) => {
-          board.value = response
-        })
+        colors.value = await getColors()
+        board.value = await getBoard(to.params.id as string)
 
         next()
       }
