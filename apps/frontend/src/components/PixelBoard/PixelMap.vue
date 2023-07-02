@@ -1,8 +1,9 @@
 <script lang="ts" setup>
-import { onMounted } from 'vue'
+import { onMounted, type PropType } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useColorStore } from '@/stores/color'
 import { postPixel } from '@/api/pixel'
+import type { IBoardDocument } from '@pixels/typings'
 
 const colorStore = useColorStore()
 
@@ -15,7 +16,7 @@ let ctx: CanvasRenderingContext2D | null = null
 
 const props = defineProps({
   board: {
-    type: Object,
+    type: Object as PropType<IBoardDocument>,
     required: true
   }
 })
@@ -61,9 +62,7 @@ function getMousePos(canvas: HTMLCanvasElement, evt: MouseEvent) {
 async function clickCanvas(evt: MouseEvent) {
   const pos = getMousePos(cursorCanvasElement, evt)
 
-  const pixel = await postPixel(selectedColor.value, props.board, pos.x, pos.y)
-
-  console.log(pixel)
+  await postPixel(selectedColor.value, props.board, pos.x, pos.y)
 }
 
 function mouseMove(evt: MouseEvent) {
@@ -87,15 +86,15 @@ function mouseLeave() {
 }
 
 function initWebSocket() {
-  const connection = new WebSocket('ws://localhost:3006')
+  const connection = new WebSocket('ws://localhost:3007')
 
   connection.onmessage = function (event: MessageEvent) {
     console.log('onmessage', event.data)
   }
 
-  connection.onopen = (event: Event) => {
-    console.log('onopen', event)
+  connection.onopen = () => {
     console.log('Successfully connected to the echo websocket server...')
+    connection.send('Hello Server!')
   }
 }
 

@@ -1,9 +1,9 @@
 import { BASE_URL } from './config'
+import type { IColor } from '@pixels/typings'
 
-async function getColors() {
+async function getColors(): Promise<IColor[]> {
   const rawResponse = await fetch(BASE_URL + '/colors')
-  const response = await rawResponse.json()
-  return response
+  return await rawResponse.json()
 }
 
 export { getColors }

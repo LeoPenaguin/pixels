@@ -1,5 +1,5 @@
 import { model } from 'mongoose'
-import { IBoard, IColor, IPixel } from '../types'
+import { IBoard, IColor, IPixel } from '@pixels/typings'
 import boardSchema from './board'
 import pixelSchema from './pixel'
 import colorSchema from './color'

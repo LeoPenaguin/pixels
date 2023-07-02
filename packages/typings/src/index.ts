@@ -1,4 +1,4 @@
-import { Types } from 'mongoose'
+import { Document, Types } from 'mongoose'
 
 interface IBoard {
   name: string
@@ -20,4 +20,8 @@ interface IPixel {
   board: Types.ObjectId
 }
 
-export { IBoard, IColor, IPixel }
+type IBoardDocument = Document<IBoard>
+type IColorDocument = Document<IColor>
+type IPixelDocument = Document<IPixel>
+
+export { IBoard, IColor, IPixel, IBoardDocument, IColorDocument, IPixelDocument }

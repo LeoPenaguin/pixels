@@ -1,6 +1,5 @@
 import express, { Request, Response } from 'express'
 import { Board } from '../models'
-import board from '../models/board'
 
 const boardsRouter = express.Router()
 

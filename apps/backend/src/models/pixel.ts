@@ -1,5 +1,5 @@
 import { Schema } from 'mongoose'
-import { IPixel } from '../types'
+import { IPixel } from '@pixels/typings'
 
 export default new Schema<IPixel>({
   col: {

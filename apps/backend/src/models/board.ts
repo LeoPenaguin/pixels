@@ -1,5 +1,5 @@
 import { Schema } from 'mongoose'
-import { IBoard } from '../types'
+import { IBoard } from '@pixels/typings'
 
 export default new Schema<IBoard>({
   name: {
