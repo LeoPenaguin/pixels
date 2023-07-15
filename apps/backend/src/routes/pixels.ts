@@ -1,5 +1,6 @@
 import express, { Request, Response } from 'express'
 import { Pixel, Color, Board } from '../models'
+import { broadcastNewPixel } from '../services/websocket/pixels'
 
 const pixelsRouter = express.Router()
 
@@ -31,12 +32,10 @@ pixelsRouter.post('/api/pixel', async (req: Request, res: Response) => {
   dbBoard.pixels.push(newPixel._id)
   await dbBoard.save()
 
-  res.status(201).json({ dbBoard: dbBoard.populate('pixels') })
-})
+  const populated = await newPixel.populate('color')
 
-pixelsRouter.delete('/api/board/:id/pixels', async (req: Request, res: Response) => {
-  const board = await Board.updateOne({ _id: req.params.id }, { $set: { pixels: [] } })
-  res.status(201).json({ board })
+  broadcastNewPixel(populated)
+  res.status(201).json({ dbBoard: dbBoard.populate('pixels') })
 })
 
 export default pixelsRouter

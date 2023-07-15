@@ -89,12 +89,16 @@ function initWebSocket() {
   const connection = new WebSocket('ws://localhost:3007')
 
   connection.onmessage = function (event: MessageEvent) {
-    console.log('onmessage', event.data)
-  }
+    const parsed = JSON.parse(event.data)
+    console.log('new message', parsed)
 
-  connection.onopen = () => {
-    console.log('Successfully connected to the echo websocket server...')
-    connection.send('Hello Server!')
+    if (parsed.name === 'new pixel') {
+      ctx.fillStyle = parsed.pixel.color.value
+      ctx.fillRect(parsed.pixel.col, parsed.pixel.row, 1, 1)
+      canvasElement?.getContext('2d').drawImage(canvasElement.offscreenCanvas, 0, 0)
+    }
+
+    console.log('new message ?', JSON.parse(event.data))
   }
 }
 

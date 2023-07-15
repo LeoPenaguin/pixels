@@ -1,10 +1,10 @@
 import express from 'express'
 import cors from 'cors'
-import { boardsRouter, colorRouter, pixelsRouter } from './routes'
+import { boardsRouter, colorRouter, pixelsRouter, pingRouter, authRouter } from './routes'
 import http from 'http'
-import PixelWebsocket from './websocket'
 import dotenv from 'dotenv'
 import PixelDb from './config/mongodb'
+import { initWebsocket } from './services/websocket'
 
 const app = express()
 dotenv.config()
@@ -21,11 +21,12 @@ pixelDb.init()
 app.use(pixelsRouter)
 app.use(boardsRouter)
 app.use(colorRouter)
+app.use(pingRouter)
+app.use(authRouter)
 
 const server = http.createServer(app)
 
-const pixelWebsocket = new PixelWebsocket(server)
-pixelWebsocket.init()
+initWebsocket(server)
 
 server.listen(port, () => {
   console.log(`server is listening on port ${port}`)

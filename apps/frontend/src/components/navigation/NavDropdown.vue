@@ -1,9 +1,29 @@
+<template>
+  <div class="nav-dropdown">
+    <NavButton :active="isOpen" :text="user.email" :icon="'user'" @click="toggleMenu" />
+    <ul v-if="isOpen" class="nav-dropdown__menu">
+      <li><EyeIcon /><span>Profile</span></li>
+      <li><SettingsIcon /><span>Settings</span></li>
+      <li @click="logout"><LogoutIcon /><span>Logout</span></li>
+    </ul>
+  </div>
+</template>
+
 <script lang="ts" setup>
 import { ref } from 'vue'
 import EyeIcon from '../icons/eyeIcon.vue'
 import LogoutIcon from '../icons/logoutIcon.vue'
 import SettingsIcon from '../icons/settingsIcon.vue'
 import NavButton from './NavButton.vue'
+import { useAuthStore } from '../../stores/auth'
+import { storeToRefs } from 'pinia'
+
+const authStore = useAuthStore()
+const { user } = storeToRefs(authStore)
+
+function logout() {
+  authStore.logout()
+}
 
 const isOpen = ref(false)
 
@@ -11,17 +31,6 @@ function toggleMenu() {
   isOpen.value = !isOpen.value
 }
 </script>
-
-<template>
-  <div class="nav-dropdown">
-    <NavButton :active="isOpen" text="Leo PNG" :icon="'user'" @click="toggleMenu" />
-    <ul v-if="isOpen" class="nav-dropdown__menu">
-      <li><EyeIcon /><span>Profile</span></li>
-      <li><SettingsIcon /><span>Settings</span></li>
-      <li><LogoutIcon /><span>Logout</span></li>
-    </ul>
-  </div>
-</template>
 
 <style lang="scss" scoped>
 @import '@/assets/style/theme.scss';
