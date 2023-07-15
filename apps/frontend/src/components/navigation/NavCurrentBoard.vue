@@ -20,12 +20,7 @@ const { board } = storeToRefs(boardStore)
   box-sizing: border-box;
   padding: 0 $m4;
   color: $text-color;
-  background: linear-gradient(
-    141deg,
-    rgb(255 255 255 / 70%) 0%,
-    rgb(255 255 255 / 50%) 50%,
-    rgb(255 255 255/ 80%) 100%
-  );
+  background: white;
   border-radius: $m2;
   display: flex;
   align-items: center;

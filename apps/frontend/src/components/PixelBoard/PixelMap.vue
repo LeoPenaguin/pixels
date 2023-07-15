@@ -1,3 +1,13 @@
+<template>
+  <div class="pixel-map">
+    <canvas id="cursor" @mousemove="mouseMove" @mouseleave="mouseLeave" @click="clickCanvas"
+      >Cursor</canvas
+    >
+    <canvas id="game">Pixels</canvas>
+    <div id="background"></div>
+  </div>
+</template>
+
 <script lang="ts" setup>
 import { onMounted, type PropType } from 'vue'
 import { storeToRefs } from 'pinia'
@@ -108,16 +118,6 @@ onMounted(() => {
   initCursor()
 })
 </script>
-
-<template>
-  <div class="pixel-map">
-    <canvas id="cursor" @mousemove="mouseMove" @mouseleave="mouseLeave" @click="clickCanvas"
-      >Cursor</canvas
-    >
-    <canvas id="game">Pixels</canvas>
-    <div id="background"></div>
-  </div>
-</template>
 
 <style lang="scss" scoped>
 .pixel-map {

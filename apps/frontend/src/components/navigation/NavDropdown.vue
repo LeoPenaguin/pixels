@@ -11,11 +11,11 @@
 
 <script lang="ts" setup>
 import { ref } from 'vue'
-import EyeIcon from '../icons/eyeIcon.vue'
-import LogoutIcon from '../icons/logoutIcon.vue'
-import SettingsIcon from '../icons/settingsIcon.vue'
+import EyeIcon from '@/components/icons/eyeIcon.vue'
+import LogoutIcon from '@/components/icons/logoutIcon.vue'
+import SettingsIcon from '@/components/icons/settingsIcon.vue'
 import NavButton from './NavButton.vue'
-import { useAuthStore } from '../../stores/auth'
+import { useAuthStore } from '@/stores/auth'
 import { storeToRefs } from 'pinia'
 
 const authStore = useAuthStore()

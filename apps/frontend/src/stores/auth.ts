@@ -2,7 +2,7 @@ import { ref, type Ref } from 'vue'
 import { defineStore } from 'pinia'
 import jscookie from 'js-cookie'
 import { useRouter } from 'vue-router'
-import { BASE_URL } from '../api/config'
+import { checkUser } from '@/api/auth'
 
 export const useAuthStore = defineStore('auth', () => {
   const user = <Ref<any>>ref('')
@@ -13,17 +13,18 @@ export const useAuthStore = defineStore('auth', () => {
 
     if (!token) {
       user.value = null
+      return
     }
 
-    const checkUser = await fetch(BASE_URL + `/checkuser?token=${token}`)
-    const fetchedUser = await checkUser.json()
+    const checkedUser = await checkUser(token)
 
-    if (!fetchedUser) {
+    if (!checkedUser) {
       user.value = null
       jscookie.remove('jwt')
+      return
     }
 
-    user.value = fetchedUser
+    user.value = checkedUser
   }
 
   function logout() {

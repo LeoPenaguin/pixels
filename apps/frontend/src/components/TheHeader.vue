@@ -1,14 +1,3 @@
-<script setup lang="ts">
-import NavCurrentBoard from './navigation/NavCurrentBoard.vue'
-import NavDropdown from './navigation/NavDropdown.vue'
-import { RouterLink } from 'vue-router'
-import { useAuthStore } from '../stores/auth'
-import { storeToRefs } from 'pinia'
-
-const authStore = useAuthStore()
-const { user } = storeToRefs(authStore)
-</script>
-
 <template>
   <nav>
     <div class="nav-left">
@@ -30,6 +19,17 @@ const { user } = storeToRefs(authStore)
     </div>
   </nav>
 </template>
+
+<script setup lang="ts">
+import NavCurrentBoard from './navigation/NavCurrentBoard.vue'
+import NavDropdown from './navigation/NavDropdown.vue'
+import { RouterLink } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
+import { storeToRefs } from 'pinia'
+
+const authStore = useAuthStore()
+const { user } = storeToRefs(authStore)
+</script>
 
 <style lang="scss" scoped>
 @import '@/assets/style/theme.scss';
