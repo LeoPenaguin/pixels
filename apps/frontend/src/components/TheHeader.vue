@@ -2,6 +2,11 @@
 import NavCurrentBoard from './navigation/NavCurrentBoard.vue'
 import NavDropdown from './navigation/NavDropdown.vue'
 import { RouterLink } from 'vue-router'
+import { useAuthStore } from '../stores/auth'
+import { storeToRefs } from 'pinia'
+
+const authStore = useAuthStore()
+const { user } = storeToRefs(authStore)
 </script>
 
 <template>
@@ -17,7 +22,11 @@ import { RouterLink } from 'vue-router'
       <NavCurrentBoard />
     </div>
     <div class="nav-right">
-      <NavDropdown />
+      <template v-if="!user">
+        <RouterLink to="/auth/signup">Sign up</RouterLink>
+        <RouterLink to="/auth/login">Login</RouterLink>
+      </template>
+      <NavDropdown v-else />
     </div>
   </nav>
 </template>

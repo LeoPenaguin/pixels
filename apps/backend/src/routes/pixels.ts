@@ -1,30 +1,40 @@
 import express, { Request, Response } from 'express'
 import { Pixel, Color, Board } from '../models'
+import { broadcastNewPixel } from '../services/websocket/pixels'
 
 const pixelsRouter = express.Router()
 
-pixelsRouter.post('/api/pixel', async (req: Request, res: Response) => {
-  const { col, row, color, board } = req.body
+pixelsRouter.get('/api/pixel/:id', async (req: Request, res: Response) => {
+  const pixel = await Pixel.findById(req.params.id)
+  res.status(201).json(pixel)
+})
 
-  const dbBoard = await Board.findById({ _id: board._id })
+pixelsRouter.post('/api/pixel', async (req: Request, res: Response) => {
+  const { col, row, colorId, boardId } = req.body
+
+  const dbBoard = await Board.findById(boardId)
 
   if (!dbBoard) {
     res.status(404).json({ ok: false, message: 'Board not found' })
     return
   }
 
-  const dbColor = await Color.findById({ col, row, _id: color._id })
+  const colorExists = await Color.exists({ _id: colorId })
 
-  if (!dbColor) {
+  if (!colorExists) {
     res.status(404).json({ ok: false, message: 'Color not found' })
     return
   }
 
-  const newPixel = new Pixel({ col, row, color: dbColor._id })
-  dbBoard.pixels.push(newPixel._id)
+  const newPixel = new Pixel({ col, row, color: colorId })
+  await newPixel.save()
 
+  dbBoard.pixels.push(newPixel._id)
   await dbBoard.save()
 
+  const populated = await newPixel.populate('color')
+
+  broadcastNewPixel(populated)
   res.status(201).json({ dbBoard: dbBoard.populate('pixels') })
 })
 

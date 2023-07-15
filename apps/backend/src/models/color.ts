@@ -1,5 +1,5 @@
 import { Schema } from 'mongoose'
-import { IColor } from '../types'
+import { IColor } from '@pixels/typings'
 
 export default new Schema<IColor>({
   name: {

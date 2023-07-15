@@ -1,23 +1,33 @@
 import express from 'express'
 import cors from 'cors'
-import { connect } from 'mongoose'
-import { boardsRouter, colorRouter, pixelsRouter } from './routes'
+import { boardsRouter, colorRouter, pixelsRouter, pingRouter, authRouter } from './routes'
+import http from 'http'
+import dotenv from 'dotenv'
+import PixelDb from './config/mongodb'
+import { initWebsocket } from './services/websocket'
 
 const app = express()
+dotenv.config()
+
 app.use(cors())
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
-const port = 3006
+const port = process.env.BACKEND_PORT
 
-connect('mongodb://127.0.0.1:27017/pixels').then(() => {
-  console.log('connected to database')
-})
+const pixelDb = new PixelDb()
+pixelDb.init()
 
 app.use(pixelsRouter)
 app.use(boardsRouter)
 app.use(colorRouter)
+app.use(pingRouter)
+app.use(authRouter)
 
-app.listen(port, () => {
+const server = http.createServer(app)
+
+initWebsocket(server)
+
+server.listen(port, () => {
   console.log(`server is listening on port ${port}`)
 })

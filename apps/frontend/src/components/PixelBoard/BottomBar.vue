@@ -1,14 +1,20 @@
 <template>
   <div class="bottom-bar">
     <div class="bottom-bar__content">
-      <div v-if="selectedColor" class="content__selected-color">
-        {{ selectedColor.name }} - {{ selectedColor.value }}
+      <div
+        v-if="selectedColor"
+        :style="{ backgroundColor: selectedColor.value }"
+        class="content__selected-color"
+      >
+        {{ selectedColor.name }}
       </div>
       <div class="content__colors">
         <div v-for="color in colors" :key="color._id" class="colors__item">
-          <button class="item__button" @click="clickedColor(color)">
-            {{ color.name }} - {{ color.value }}
-          </button>
+          <button
+            :style="{ backgroundColor: color.value }"
+            class="item__button"
+            @click="clickedColor(color)"
+          ></button>
         </div>
       </div>
     </div>
@@ -18,11 +24,19 @@
 <script lang="ts" setup>
 import { useColorStore } from '@/stores/color'
 import { storeToRefs } from 'pinia'
+import { onMounted } from 'vue'
+import type { IColor } from '@pixels/typings'
 
 const colorStore = useColorStore()
 const { colors, selectedColor } = storeToRefs(colorStore)
 
-function clickedColor(color) {
+onMounted(() => {
+  if (!selectedColor.value) {
+    selectedColor.value = colors.value[0]
+  }
+})
+
+function clickedColor(color: IColor) {
   selectedColor.value = color
 }
 </script>
@@ -41,15 +55,42 @@ function clickedColor(color) {
   pointer-events: none;
   z-index: 1000;
   &__content {
+    display: flex;
+    gap: $m2;
+    align-items: center;
     border-radius: $m4;
-    width: 200px;
-    padding: $m4;
+    padding: $m2;
     pointer-events: inherit;
-    background: rgb(224, 224, 224);
-    border: 3px solid white;
-  }
-  .item__button {
-    pointer-events: all;
+    background: linear-gradient(90deg, rgb(126, 195, 196) 0%, rgb(240, 212, 156) 100%);
+    .content__selected-color {
+      display: flex;
+      gap: $m1;
+      height: 60px;
+      background: rgba(255, 255, 255, 0.7);
+      padding: $m1 $m6;
+      border-radius: $m3;
+      align-items: center;
+    }
+    .content__colors {
+      display: flex;
+      gap: $m1;
+      height: 60px;
+      background: rgba(255, 255, 255, 0.7);
+      padding: $m1 $m3;
+      border-radius: $m3;
+      align-items: center;
+      .item__button {
+        pointer-events: all;
+        border: 0;
+        width: 40px;
+        height: 40px;
+        border-radius: 20px;
+        cursor: pointer;
+        &:hover {
+          transform: scale(1.2);
+        }
+      }
+    }
   }
 }
 </style>

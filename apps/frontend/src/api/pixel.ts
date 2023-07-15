@@ -1,14 +1,13 @@
 import { BASE_URL } from './config'
+import type { IPixel } from '@pixels/typings'
 
 async function postPixel(color, board, col, row) {
   const payload = {
-    color: color.value,
+    colorId: color._id,
     col,
     row,
-    board: board.value
+    boardId: board._id
   }
-
-  console.log('payload', payload)
 
   const rawResponse = await fetch(BASE_URL + '/pixel', {
     method: 'POST',
@@ -17,8 +16,7 @@ async function postPixel(color, board, col, row) {
     },
     body: JSON.stringify(payload)
   })
-  const response = await rawResponse.json()
-  return response
+  return await rawResponse.json()
 }
 
 export { postPixel }
