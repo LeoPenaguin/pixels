@@ -2,8 +2,15 @@ import { User } from '../models'
 import jsonwebtoken from 'jsonwebtoken'
 import { Request, Response } from 'express'
 
-// handle errors
-const handleErrors = (err: any) => {
+const maxAge = 3 * 24 * 60 * 60
+
+function createToken(id: any) {
+  return jsonwebtoken.sign({ id }, 'leopng', {
+    expiresIn: maxAge
+  })
+}
+
+function handleErrors(err: any) {
   console.log(err.message, err.code)
   const errors = { email: '', password: '' }
 
@@ -35,22 +42,12 @@ const handleErrors = (err: any) => {
   return errors
 }
 
-// create json web token
-const maxAge = 3 * 24 * 60 * 60
-const createToken = (id: any) => {
-  return jsonwebtoken.sign({ id }, 'leopng', {
-    expiresIn: maxAge
-  })
-}
-
-// controller actions
-export const signup_post = async (request: Request, response: Response) => {
+export async function signup_post(request: Request, response: Response) {
   const { email, password } = request.body
 
   try {
     const user = await User.create({ email, password })
     const token = createToken(user._id)
-    // response.cookie('jwt', token, { httpOnly: true, maxAge: maxAge * 1000 })
     response.status(201).json({ user: user._id, token })
   } catch (error: any) {
     const errors = handleErrors(error)
@@ -58,13 +55,12 @@ export const signup_post = async (request: Request, response: Response) => {
   }
 }
 
-export const login_post = async (request: Request, response: Response) => {
+export async function login_post(request: Request, response: Response) {
   const { email, password } = request.body
 
   try {
     const user = await User.login(email, password)
     const token = createToken(user._id)
-    // response.cookie('jwt', token, { httpOnly: true, maxAge: maxAge * 1000 })
     response.status(200).json({ user: user._id, token })
   } catch (error: any) {
     const errors = handleErrors(error)
@@ -72,12 +68,7 @@ export const login_post = async (request: Request, response: Response) => {
   }
 }
 
-export const logout_get = (request: Request, response: Response) => {
-  response.cookie('jwt', '', { maxAge: 1 })
-  response.redirect('/')
-}
-
-export const checkuser_get = (request: Request, response: Response) => {
+export async function checkuser_get(request: Request, response: Response) {
   try {
     const token = request.query.token as string
     if (token) {

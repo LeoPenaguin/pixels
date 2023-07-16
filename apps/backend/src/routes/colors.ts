@@ -1,11 +1,8 @@
-import express, { Request, Response } from 'express'
-import { Color } from '../models'
+import { colors_get } from '../controllers/colorController'
+import { Router } from 'express'
 
-const colorsRouter = express.Router()
+const colorsRouter = Router()
 
-colorsRouter.get('/api/colors', async (req: Request, res: Response) => {
-  const color = await Color.find({})
-  res.json(color)
-})
+colorsRouter.get('/api/colors', colors_get)
 
 export default colorsRouter
