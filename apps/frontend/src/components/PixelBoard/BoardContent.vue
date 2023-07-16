@@ -1,3 +1,15 @@
+<template>
+  <div ref="container" class="board-content" @wheel="zoom">
+    <div
+      ref="slot"
+      class="board-content__slot"
+      :style="{ transform: `scale(${scale}) translate(${translateX}px, ${translateY}px)` }"
+    >
+      <slot>Empty pixel board content</slot>
+    </div>
+  </div>
+</template>
+
 <script lang="ts" setup>
 import { onMounted, onUnmounted, ref } from 'vue'
 
@@ -44,18 +56,6 @@ onUnmounted(() => {
   container.value?.removeEventListener('mousemove', drag)
 })
 </script>
-
-<template>
-  <div ref="container" class="board-content" @wheel="zoom">
-    <div
-      ref="slot"
-      class="board-content__slot"
-      :style="{ transform: `scale(${scale}) translate(${translateX}px, ${translateY}px)` }"
-    >
-      <slot>Empty pixel board content</slot>
-    </div>
-  </div>
-</template>
 
 <style lang="scss" scropped>
 .board-content {

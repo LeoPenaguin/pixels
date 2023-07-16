@@ -13,11 +13,11 @@
 
 <script lang="ts" setup>
 import { ref } from 'vue'
-import { BASE_URL } from '../../api/config'
 import { useRouter } from 'vue-router'
-import { useAuthStore } from '../../stores/auth'
+import { useAuthStore } from '@/stores/auth'
 import { storeToRefs } from 'pinia'
 import jscookie from 'js-cookie'
+import { login } from '@/api/auth'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -37,13 +37,7 @@ async function submit(e: MouseEvent) {
   passwordError.value = ''
 
   try {
-    const res = await fetch(BASE_URL + '/login', {
-      method: 'POST',
-      body: JSON.stringify({ email: emailValue.value, password: passwordValue.value }),
-      headers: { 'Content-Type': 'application/json' }
-    })
-    const data = await res.json()
-    console.log(data)
+    const data = await login(emailValue.value, passwordValue.value)
     if (data.errors) {
       emailError.value = data.errors.email
       passwordError.value = data.errors.password

@@ -19,12 +19,7 @@
   &__nav {
     // background-color: $secondary-background-color;
     box-shadow: 0px 0px $m1 0px rgba(0, 0, 0, 0.5);
-    background: linear-gradient(
-      140deg,
-      rgba(255, 115, 0, 0.5) 0%,
-      rgba(0, 255, 145, 0.8) 50%,
-      rgba(0, 0, 255, 0.4) 100%
-    );
+    background: red;
     padding: $m2;
     z-index: 1000;
   }

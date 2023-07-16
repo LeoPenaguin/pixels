@@ -1,9 +1,3 @@
-<script setup lang="ts">
-import { RouterView } from 'vue-router'
-import TheHeader from './components/TheHeader.vue'
-import NavAndContent from './components/templates/NavAndContent.vue'
-</script>
-
 <template>
   <NavAndContent>
     <template #nav>
@@ -14,6 +8,12 @@ import NavAndContent from './components/templates/NavAndContent.vue'
     </template>
   </NavAndContent>
 </template>
+
+<script setup lang="ts">
+import { RouterView } from 'vue-router'
+import TheHeader from '@/components/TheHeader.vue'
+import NavAndContent from '@/components/templates/NavAndContent.vue'
+</script>
 
 <style lang="scss">
 @import '@/assets/style/theme.scss';
