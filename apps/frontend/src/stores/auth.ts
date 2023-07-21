@@ -3,9 +3,10 @@ import { defineStore } from 'pinia'
 import jscookie from 'js-cookie'
 import { useRouter } from 'vue-router'
 import { checkUser } from '@/api/auth'
+import type { IUser } from '@pixels/typings'
 
 export const useAuthStore = defineStore('auth', () => {
-  const user = <Ref<any>>ref('')
+  const user = <Ref<IUser | null>>ref()
   const router = useRouter()
 
   async function checkAuth() {

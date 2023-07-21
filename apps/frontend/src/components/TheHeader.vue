@@ -7,22 +7,15 @@
         </div>
       </RouterLink>
     </div>
-    <div class="nav-center">
-      <NavCurrentBoard />
-    </div>
+    <div class="nav-center"></div>
     <div class="nav-right">
-      <template v-if="!user">
-        <RouterLink to="/auth/signup">Sign up</RouterLink>
-        <RouterLink to="/auth/login">Login</RouterLink>
-      </template>
-      <NavDropdown v-else />
+      <NavUser />
     </div>
   </nav>
 </template>
 
 <script setup lang="ts">
-import NavCurrentBoard from './navigation/NavCurrentBoard.vue'
-import NavDropdown from './navigation/NavDropdown.vue'
+import NavUser from './navigation/NavUser.vue'
 import { RouterLink } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { storeToRefs } from 'pinia'
@@ -56,8 +49,10 @@ nav {
     }
     .home-link-logo {
       height: 100%;
+      display: flex;
+      align-items: center;
       img {
-        height: 100%;
+        height: 45px;
       }
     }
   }

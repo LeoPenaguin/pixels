@@ -1,21 +1,24 @@
 <template>
   <div class="bottom-bar">
     <div class="bottom-bar__content">
-      <div
-        v-if="selectedColor"
-        :style="{ backgroundColor: selectedColor.value }"
-        class="content__selected-color"
-      >
-        {{ selectedColor.name }}
-      </div>
-      <div class="content__colors">
-        <div v-for="color in colors" :key="color._id" class="colors__item">
+      <div class="content__section colors">
+        <div v-for="color in colors" :key="color._id">
           <button
             :style="{ backgroundColor: color.value }"
-            class="item__button"
+            :class="['item__button', { 'item__button-selected': selectedColor === color }]"
             @click="clickedColor(color)"
           ></button>
         </div>
+      </div>
+      <div class="content__section cursor">
+        <div class="curstor__x">x: {{ uiCursorPosition.x }}</div>
+        <div class="curstor__y">y: {{ uiCursorPosition.y }}</div>
+      </div>
+      <div v-if="selectedPixel" class="content__section select-pixel">
+        x: {{ selectedPixel.col }} y: {{ selectedPixel.row }}
+        <span class="select-pixel__color" :style="{ backgroundColor: selectedColor.value }"></span>
+        <button :onclick="paintPixel">Click</button>
+        <button :onclick="unselectPixel">Cancel</button>
       </div>
     </div>
   </div>
@@ -26,9 +29,19 @@ import { useColorStore } from '@/stores/color'
 import { storeToRefs } from 'pinia'
 import { onMounted } from 'vue'
 import type { IColor } from '@pixels/typings'
+import { useCursorStore } from '@/stores/cursor'
+import { usePixelStore } from '@/stores/pixel'
+import { useBoardStore } from '@/stores/board'
 
+const cursorStore = useCursorStore()
 const colorStore = useColorStore()
+const pixelStore = usePixelStore()
+const boardStore = useBoardStore()
+
 const { colors, selectedColor } = storeToRefs(colorStore)
+const { uiCursorPosition } = storeToRefs(cursorStore)
+const { selectedPixel } = storeToRefs(pixelStore)
+const { board } = storeToRefs(boardStore)
 
 onMounted(() => {
   if (!selectedColor.value) {
@@ -36,16 +49,41 @@ onMounted(() => {
   }
 })
 
+const paintPixel = async () => {
+  const newPixel = await pixelStore.postPixel(
+    selectedColor.value,
+    board.value,
+    selectedPixel.value.col,
+    selectedPixel.value.row
+  )
+
+  boardStore.replaceBoardPixel(newPixel)
+}
+
+const unselectPixel = () => {
+  selectedPixel.value = null
+}
+
 function clickedColor(color: IColor) {
   selectedColor.value = color
 }
+
+onMounted(() => {
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      unselectPixel()
+    } else if (e.key === 'Enter') {
+      paintPixel()
+    }
+  })
+})
 </script>
 
 <style lang="scss">
 @import '@/assets/style/theme.scss';
 
 .bottom-bar {
-  padding: 0.5rem;
+  padding: 1rem 0;
   width: 100%;
   display: flex;
   align-items: center;
@@ -58,36 +96,55 @@ function clickedColor(color: IColor) {
     display: flex;
     gap: $m2;
     align-items: center;
-    border-radius: $m4;
-    padding: $m2;
     pointer-events: inherit;
-    background: linear-gradient(90deg, rgb(126, 195, 196) 0%, rgb(240, 212, 156) 100%);
-    .content__selected-color {
-      display: flex;
-      gap: $m1;
-      height: 60px;
-      background: rgba(255, 255, 255, 0.7);
-      padding: $m1 $m6;
-      border-radius: $m3;
-      align-items: center;
-    }
-    .content__colors {
-      display: flex;
-      gap: $m1;
-      height: 60px;
-      background: rgba(255, 255, 255, 0.7);
+    .content__section {
+      background: rgb(255, 0, 0);
       padding: $m1 $m3;
-      border-radius: $m3;
+      border-radius: $m5;
+      display: flex;
       align-items: center;
-      .item__button {
-        pointer-events: all;
-        border: 0;
-        width: 40px;
-        height: 40px;
-        border-radius: 20px;
-        cursor: pointer;
-        &:hover {
-          transform: scale(1.2);
+      pointer-events: all;
+
+      &.colors {
+        gap: $m2;
+        height: 60px;
+
+        .item__button {
+          border: 0;
+          width: 40px;
+          height: 40px;
+          border-radius: 20px;
+          cursor: pointer;
+          &:hover {
+            transform: scale(1.1);
+          }
+          &-selected {
+            &::after {
+              content: 'x';
+            }
+            &:hover {
+              transform: scale(1);
+            }
+          }
+        }
+      }
+
+      &.cursor {
+        background: rgb(176, 0, 0);
+        color: white;
+        height: 60px;
+        width: 60px;
+        flex-direction: column;
+        justify-content: center;
+      }
+
+      &.select-pixel {
+        background: rgb(176, 0, 0);
+        color: white;
+        height: 60px;
+        .select-pixel__color {
+          width: 40px;
+          height: 40px;
         }
       }
     }

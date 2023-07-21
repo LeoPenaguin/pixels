@@ -17,8 +17,6 @@
   display: flex;
   flex-direction: column;
   &__nav {
-    // background-color: $secondary-background-color;
-    box-shadow: 0px 0px $m1 0px rgba(0, 0, 0, 0.5);
     background: red;
     padding: $m2;
     z-index: 1000;

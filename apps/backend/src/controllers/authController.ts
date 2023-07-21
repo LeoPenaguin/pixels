@@ -11,7 +11,7 @@ function createToken(id: any) {
 }
 
 function handleErrors(err: any) {
-  console.log(err.message, err.code)
+  console.log(err)
   const errors = { email: '', password: '' }
 
   // incorrect email
