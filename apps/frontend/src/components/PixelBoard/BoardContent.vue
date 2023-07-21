@@ -59,7 +59,7 @@ onUnmounted(() => {
 
 <style lang="scss" scropped>
 .board-content {
-  background: rgb(41, 41, 41);
+  background: rgb(240, 240, 240);
   height: 100%;
   box-sizing: border-box;
   position: relative;

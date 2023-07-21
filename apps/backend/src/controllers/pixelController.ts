@@ -33,5 +33,5 @@ export async function pixel_post(req: Request, res: Response) {
   const populated = await newPixel.populate('color')
 
   broadcastNewPixel(populated)
-  res.status(201).json({ dbBoard: dbBoard.populate('pixels') })
+  res.status(201).json(populated)
 }

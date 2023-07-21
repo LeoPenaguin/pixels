@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '@/views/HomeView.vue'
-import PixelBoardView from '@/views/PixelBoardView.vue'
+import PixelBoard from '@/views/PixelBoardView.vue'
 import LoginView from '@/views/auth/LoginUser.vue'
 import SignUpView from '@/views/auth/SignUpUser.vue'
 import { useColorStore } from '@/stores/color'
@@ -21,19 +21,7 @@ const router = createRouter({
     {
       path: '/board/:id',
       name: 'pixel-board',
-      component: PixelBoardView,
-      async beforeEnter(to, from, next) {
-        const colorStore = useColorStore()
-        const boardStore = useBoardStore()
-
-        const { colors } = storeToRefs(colorStore)
-        const { board } = storeToRefs(boardStore)
-
-        colors.value = await getColors()
-        board.value = await getBoard(to.params.id as string)
-
-        next()
-      },
+      component: PixelBoard,
       meta: { requiresAuth: true }
     },
     {

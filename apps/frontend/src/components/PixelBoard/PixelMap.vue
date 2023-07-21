@@ -9,40 +9,40 @@
 </template>
 
 <script lang="ts" setup>
-import { onMounted, type PropType } from 'vue'
+import { onMounted } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useColorStore } from '@/stores/color'
-import { postPixel } from '@/api/pixel'
-import type { IBoardDocument } from '@pixels/typings'
+import { useCursorStore } from '@/stores/cursor'
+import { useBoardStore } from '@/stores/board'
+import { usePixelStore } from '@/stores/pixel'
 
 const colorStore = useColorStore()
+const cursorStore = useCursorStore()
+const boardStore = useBoardStore()
+const pixelStore = usePixelStore()
 
+const { board } = storeToRefs(boardStore)
 const { selectedColor } = storeToRefs(colorStore)
+const { selectedPixel } = storeToRefs(pixelStore)
+const { cursorPosition } = storeToRefs(cursorStore)
 
 let canvasElement: HTMLCanvasElement | null = null
 let cursorCanvasElement: HTMLCanvasElement | null = null
 let cursorContext: CanvasRenderingContext2D | null = null
 let ctx: CanvasRenderingContext2D | null = null
 
-const props = defineProps({
-  board: {
-    type: Object as PropType<IBoardDocument>,
-    required: true
-  }
-})
-
 function initPixelMap() {
   canvasElement = document.getElementById('game') as HTMLCanvasElement
 
-  canvasElement.width = props.board.width
-  canvasElement.height = props.board.height
+  canvasElement.width = board.value.width
+  canvasElement.height = board.value.height
 
   canvasElement.offscreenCanvas = document.createElement('canvas')
   canvasElement.offscreenCanvas.width = canvasElement.width
   canvasElement.offscreenCanvas.height = canvasElement.height
   ctx = canvasElement.offscreenCanvas.getContext('2d') as CanvasRenderingContext2D
 
-  props.board.pixels.forEach((pixel) => {
+  board.value.pixels.forEach((pixel) => {
     ctx.fillStyle = pixel.color.value
     ctx.fillRect(pixel.col, pixel.row, 1, 1)
   })
@@ -54,25 +54,33 @@ function initCursor() {
   cursorCanvasElement = document.getElementById('cursor') as HTMLCanvasElement
   cursorContext = cursorCanvasElement.getContext('2d') as CanvasRenderingContext2D
 
-  cursorCanvasElement.width = props.board.width
-  cursorCanvasElement.height = props.board.height
+  cursorCanvasElement.width = board.value.width
+  cursorCanvasElement.height = board.value.height
 }
 
-function getMousePos(canvas: HTMLCanvasElement, evt: MouseEvent) {
+function getMousePos(canvas: HTMLCanvasElement, evt: MouseEvent): void {
   var rect = canvas.getBoundingClientRect(), // abs. size of element
     scaleX = canvas.width / rect.width, // relationship bitmap vs. element for x
     scaleY = canvas.height / rect.height // relationship bitmap vs. element for y
 
-  return {
+  cursorPosition.value = {
     x: Math.trunc((evt.clientX - rect.left) * scaleX), // scale mouse coordinates after they have
     y: Math.trunc((evt.clientY - rect.top) * scaleY) // been adjusted to be relative to element
   }
 }
 
 async function clickCanvas(evt: MouseEvent) {
-  const pos = getMousePos(cursorCanvasElement, evt)
+  getMousePos(cursorCanvasElement, evt)
 
-  await postPixel(selectedColor.value, props.board, pos.x, pos.y)
+  if (!cursorPosition.value) {
+    return
+  }
+
+  selectedPixel.value = {
+    col: cursorPosition.value.x,
+    row: cursorPosition.value.y,
+    color: selectedColor.value
+  }
 }
 
 function mouseMove(evt: MouseEvent) {
@@ -80,11 +88,11 @@ function mouseMove(evt: MouseEvent) {
     return
   }
 
-  const pos = getMousePos(cursorCanvasElement, evt)
+  getMousePos(cursorCanvasElement, evt)
 
-  cursorContext.clearRect(0, 0, props.board.width, props.board.height)
+  cursorContext.clearRect(0, 0, board.value.width, board.value.height)
   cursorContext.fillStyle = 'red'
-  cursorContext.fillRect(pos.x, pos.y, 1, 1)
+  cursorContext.fillRect(cursorPosition.value.x, cursorPosition.value.y, 1, 1)
 }
 
 function mouseLeave() {
@@ -92,7 +100,7 @@ function mouseLeave() {
     return
   }
 
-  cursorContext.clearRect(0, 0, props.board.width, props.board.height)
+  cursorContext.clearRect(0, 0, board.value.width, board.value.height)
 }
 
 function initWebSocket() {
@@ -100,15 +108,12 @@ function initWebSocket() {
 
   connection.onmessage = function (event: MessageEvent) {
     const parsed = JSON.parse(event.data)
-    console.log('new message', parsed)
 
     if (parsed.name === 'new pixel') {
       ctx.fillStyle = parsed.pixel.color.value
       ctx.fillRect(parsed.pixel.col, parsed.pixel.row, 1, 1)
       canvasElement?.getContext('2d').drawImage(canvasElement.offscreenCanvas, 0, 0)
     }
-
-    console.log('new message ?', JSON.parse(event.data))
   }
 }
 
