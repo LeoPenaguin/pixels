@@ -15,15 +15,10 @@
 
 <script lang="ts" setup>
 import { getBoards } from '@/api/board'
-import { getColors } from '@/api/color'
 import PageContent from '@/components/templates/PageContent.vue'
 import { onMounted, ref } from 'vue'
 import { RouterLink } from 'vue-router'
-import { useColorStore } from '@/stores/color'
-import { storeToRefs } from 'pinia'
 
-const colorStore = useColorStore()
-const { colors } = storeToRefs(colorStore)
 const boards = ref()
 
 function initWebSocket() {
@@ -43,9 +38,6 @@ onMounted(() => {
   initWebSocket()
   getBoards().then((response) => {
     boards.value = response
-  })
-  getColors().then((response) => {
-    colors.value = response
   })
 })
 </script>

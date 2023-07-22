@@ -1,15 +1,14 @@
-import { BASE_URL } from './config'
+import { BASE_URL, getAuthHeader } from './config'
 import type { IBoard } from '@pixels/typings'
 
 async function getBoards(): Promise<IBoard[]> {
-  const rawResponse = await fetch(BASE_URL + '/boards')
+  const rawResponse = await fetch(`${BASE_URL}/boards`)
   return await rawResponse.json()
 }
 
 async function getBoard(id: string): Promise<IBoard> {
-  const request = new Request(BASE_URL + `/board/${id}`)
-
-  const rawResponse = await fetch(request)
+  const headers = getAuthHeader()
+  const rawResponse = await fetch(`${BASE_URL}/board/${id}`, { headers })
   return await rawResponse.json()
 }
 

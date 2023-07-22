@@ -29,7 +29,7 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   function logout() {
-    user.value = ''
+    user.value = null
     jscookie.remove('jwt')
 
     router.push('/')

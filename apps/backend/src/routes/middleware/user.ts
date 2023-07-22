@@ -2,17 +2,20 @@ import jsonwebtoken from 'jsonwebtoken'
 import type { Request, Response } from 'express'
 
 const requireAuth = (request: Request, response: Response, next: any) => {
-  const token = request.body.token
+  const token = request.headers.authorization?.split(' ')[1]
+
+  console.log(token)
 
   if (token) {
-    jsonwebtoken.verify(token, 'leopng', (error: any, decodedToken: any) => {
+    jsonwebtoken.verify(token, 'leopng', (error: any) => {
       if (error) {
-        console.log(error.message)
+        response.status(401).json({ message: 'Unauthorized' })
       } else {
-        console.log(decodedToken)
         next()
       }
     })
+  } else {
+    response.status(401).json({ message: 'Unauthorized' })
   }
 }
 

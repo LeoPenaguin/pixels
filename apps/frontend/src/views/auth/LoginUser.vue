@@ -4,12 +4,17 @@
       <h1>Login</h1>
       <div class="input-group">
         <label for="email">Email</label>
-        <input v-model="emailValue" type="text" name="email" />
+        <input v-model="emailValue" autocomplete="email" type="text" name="email" />
         <div class="error">{{ emailError }}</div>
       </div>
       <div class="input-group">
         <label for="password">Password</label>
-        <input v-model="passwordValue" type="password" name="password" />
+        <input
+          v-model="passwordValue"
+          autocomplete="current-password"
+          type="password"
+          name="password"
+        />
         <div class="error">{{ passwordError }}</div>
       </div>
       <button @click="submit">Login</button>
