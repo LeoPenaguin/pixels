@@ -11,8 +11,7 @@ function createToken(id: any) {
 }
 
 function handleErrors(err: any) {
-  console.log(err)
-  const errors = { email: '', password: '' }
+  const errors = { email: '', password: '', username: '' }
 
   // incorrect email
   if (err.message === 'incorrect email') {
@@ -26,7 +25,14 @@ function handleErrors(err: any) {
 
   // duplicate email error
   if (err.code === 11000) {
-    errors.email = 'that email is already registered'
+    const duplicatedField = Object.keys(err.keyPattern).at(0)
+
+    if (duplicatedField === 'username') {
+      errors.username = 'this username is already used'
+    } else if (duplicatedField === 'email') {
+      errors.email = 'that email is already registered'
+    }
+
     return errors
   }
 
@@ -43,10 +49,10 @@ function handleErrors(err: any) {
 }
 
 export async function signup_post(request: Request, response: Response) {
-  const { email, password } = request.body
+  const { email, password, username } = request.body
 
   try {
-    const user = await User.create({ email, password })
+    const user = await User.create({ email, password, username })
     const token = createToken(user._id)
     response.status(201).json({ user: user._id, token })
   } catch (error: any) {

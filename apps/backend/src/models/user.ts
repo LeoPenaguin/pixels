@@ -15,6 +15,12 @@ const userSchema = new Schema<IUser, UserModel>({
     type: String,
     required: [true, 'Please enter a password'],
     minlength: [6, 'Minimum password length is 6 characters']
+  },
+  username: {
+    type: String,
+    required: [true, 'Please enter a username'],
+    unique: true,
+    validate: [validator.isAlphanumeric, 'Please enter a valid username']
   }
 })
 

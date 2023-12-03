@@ -1,4 +1,4 @@
-import { Document, Model, Types } from 'mongoose'
+import type { Document, Model, Types } from 'mongoose'
 
 interface IBoard {
   name: string
@@ -23,6 +23,7 @@ interface IPixel {
 interface IUser {
   email: string
   password: string
+  username: string
 }
 
 interface UserModel extends Model<IUser> {
@@ -35,13 +36,13 @@ type IPixelDocument = Document<IPixel>
 type IUserDocument = Document<IUser>
 
 export {
-  IBoard,
-  IColor,
-  IPixel,
-  IBoardDocument,
-  IColorDocument,
-  IPixelDocument,
-  IUser,
-  IUserDocument,
-  UserModel
+  type IBoard,
+  type IColor,
+  type IPixel,
+  type IBoardDocument,
+  type IColorDocument,
+  type IPixelDocument,
+  type IUser,
+  type IUserDocument,
+  type UserModel
 }

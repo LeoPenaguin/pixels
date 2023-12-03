@@ -17,6 +17,11 @@
         />
         <div class="error">{{ passwordError }}</div>
       </div>
+      <div class="input-group">
+        <label for="username">User name</label>
+        <input v-model="usernameValue" autocomplete="new-username" type="string" name="username" />
+        <div class="error">{{ usernameError }}</div>
+      </div>
       <button @click="submit">Sign up</button>
     </form>
   </div>
@@ -37,8 +42,11 @@ const { user } = storeToRefs(authStore)
 
 const emailValue = ref('')
 const passwordValue = ref('')
+const usernameValue = ref('')
+
 const emailError = ref('')
 const passwordError = ref('')
+const usernameError = ref('')
 
 async function submit(e: MouseEvent) {
   e.preventDefault()
@@ -46,15 +54,17 @@ async function submit(e: MouseEvent) {
   // reset errors
   emailError.value = ''
   passwordError.value = ''
+  usernameError.value = ''
 
   const maxAge = 3 * 24 * 60 * 60
 
   try {
-    const data = await register(emailValue.value, passwordValue.value)
+    const data = await register(emailValue.value, passwordValue.value, usernameValue.value)
     console.log(data)
     if (data.errors) {
       emailError.value = data.errors.email
       passwordError.value = data.errors.password
+      usernameError.value = data.errors.username
     }
     if (data.user) {
       user.value = data.user

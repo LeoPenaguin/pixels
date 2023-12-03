@@ -2,13 +2,17 @@
   <div class="home">
     <PageContent>
       <h1>Lorem ipsum dolor</h1>
-      <RouterLink
-        v-for="board in boards"
-        :key="board._id"
-        :to="{ name: 'pixel-board', params: { id: board._id } }"
-      >
-        {{ board.name }} - {{ board.width }}x{{ board.height }}<br />
-      </RouterLink>
+      <div class="home__board-list">
+        <div v-for="board in boards" :key="board._id">
+          <OrganismCard
+            :title="board.name"
+            :link="{ name: RouteNames.PIXEL_BOARD, params: { id: board._id } }"
+            :link-text="'Go to board'"
+          >
+            <template #details> {{ board.width }}x{{ board.height }} </template>
+          </OrganismCard>
+        </div>
+      </div>
     </PageContent>
   </div>
 </template>
@@ -17,7 +21,8 @@
 import { getBoards } from '@/api/board'
 import PageContent from '@/components/templates/PageContent.vue'
 import { onMounted, ref } from 'vue'
-import { RouterLink } from 'vue-router'
+import { RouteNames } from '@/router/types/routes'
+import OrganismCard from '@/components/ds/OrganismCard.vue'
 
 const boards = ref()
 
@@ -41,3 +46,5 @@ onMounted(() => {
   })
 })
 </script>
+
+<style lang="scss" scoped></style>
