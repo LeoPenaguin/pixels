@@ -3,35 +3,32 @@ import HomeView from '@/views/HomeView.vue'
 import PixelBoard from '@/views/PixelBoardView.vue'
 import LoginView from '@/views/auth/LoginUser.vue'
 import SignUpView from '@/views/auth/SignUpUser.vue'
-import { useColorStore } from '@/stores/color'
 import { storeToRefs } from 'pinia'
-import { getColors } from '@/api/color'
-import { useBoardStore } from '@/stores/board'
-import { getBoard } from '@/api/board'
 import { useAuthStore } from '@/stores/auth'
+import { RouteNames } from './types/routes'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
       path: '/',
-      name: 'home',
+      name: RouteNames.HOME,
       component: HomeView
     },
     {
       path: '/board/:id',
-      name: 'pixel-board',
+      name: RouteNames.PIXEL_BOARD,
       component: PixelBoard,
       meta: { requiresAuth: true }
     },
     {
       path: '/auth/login',
-      name: 'auth-login',
+      name: RouteNames.AUTH_LOGIN,
       component: LoginView
     },
     {
       path: '/auth/signup',
-      name: 'auth-signup',
+      name: RouteNames.AUTH_SIGNUP,
       component: SignUpView
     }
   ]

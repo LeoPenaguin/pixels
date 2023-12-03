@@ -1,7 +1,7 @@
 <template>
   <nav>
     <div class="nav-left">
-      <RouterLink to="/">
+      <RouterLink :to="{ name: RouteNames.HOME }">
         <div class="home-link-logo">
           <img src="../assets/logo.png" alt="The logo" />
         </div>
@@ -9,19 +9,15 @@
     </div>
     <div class="nav-center"></div>
     <div class="nav-right">
-      <NavUser />
+      <UserSection />
     </div>
   </nav>
 </template>
 
 <script setup lang="ts">
-import NavUser from './navigation/NavUser.vue'
+import UserSection from './header/UserSection.vue'
 import { RouterLink } from 'vue-router'
-import { useAuthStore } from '@/stores/auth'
-import { storeToRefs } from 'pinia'
-
-const authStore = useAuthStore()
-const { user } = storeToRefs(authStore)
+import { RouteNames } from '@/router/types/routes'
 </script>
 
 <style lang="scss" scoped>
@@ -32,13 +28,6 @@ nav {
   justify-content: space-between;
   align-items: stretch;
   gap: $m3;
-
-  .nav-left,
-  .nav-center,
-  .nav-right {
-    display: flex;
-    align-items: center;
-  }
 
   .nav-left {
     display: flex;

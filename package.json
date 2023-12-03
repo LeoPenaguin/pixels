@@ -18,8 +18,10 @@
   "author": "Léo Penaguin",
   "license": "MIT",
   "devDependencies": {
+    "@histoire/plugin-vue": "^0.16.1",
     "concurrently": "^8.0.1",
     "eslint-config-prettier": "^8.8.0",
-    "eslint-plugin-prettier": "^4.2.1"
+    "eslint-plugin-prettier": "^4.2.1",
+    "histoire": "^0.16.2"
   }
 }

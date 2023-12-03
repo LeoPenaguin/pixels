@@ -17,11 +17,14 @@
   display: flex;
   flex-direction: column;
   &__nav {
-    background: red;
-    padding: $m2;
+    background: rgb(7, 229, 129);
+    padding: $m1;
     z-index: 1000;
+    margin: 5px;
+    border-radius: 5px;
   }
   &__content {
+    display: contents;
     flex: 1;
     overflow: auto;
   }

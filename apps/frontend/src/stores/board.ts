@@ -1,6 +1,6 @@
 import { ref, type Ref } from 'vue'
 import { defineStore } from 'pinia'
-import type { IBoard, IColor, IPixel } from '@pixels/typings'
+import type { IBoard, IPixel } from '@pixels/typings'
 
 export const useBoardStore = defineStore('board', () => {
   const board = <Ref<IBoard>>ref()

@@ -9,10 +9,10 @@ async function login(email: string, password: string) {
   return await response.json()
 }
 
-async function register(email: string, password: string) {
+async function register(email: string, password: string, username: string) {
   const res = await fetch(`${BASE_URL}/signup`, {
     method: 'POST',
-    body: JSON.stringify({ email, password: password }),
+    body: JSON.stringify({ email, password, username }),
     headers: { 'Content-Type': 'application/json' }
   })
   return await res.json()
