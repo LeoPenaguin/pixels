@@ -1,6 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import HomeView from '@/views/HomeView.vue'
-import PixelBoard from '@/views/PixelBoardView.vue'
+import PixelBoard from '@/views/PixelBoard.vue'
 import LoginView from '@/views/auth/LoginUser.vue'
 import SignUpView from '@/views/auth/SignUpUser.vue'
 import { storeToRefs } from 'pinia'
@@ -13,14 +12,15 @@ const router = createRouter({
     {
       path: '/',
       name: RouteNames.HOME,
-      component: HomeView
-    },
-    {
-      path: '/board/:id',
-      name: RouteNames.PIXEL_BOARD,
       component: PixelBoard,
-      meta: { requiresAuth: true }
+      meta: { requiresAuth: false }
     },
+    // {
+    //   path: '/board/:id',
+    //   name: RouteNames.PIXEL_BOARD,
+    //   component: PixelBoard,
+    //   meta: { requiresAuth: true }
+    // },
     {
       path: '/auth/login',
       name: RouteNames.AUTH_LOGIN,

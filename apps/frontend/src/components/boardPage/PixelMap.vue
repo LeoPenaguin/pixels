@@ -44,7 +44,7 @@ function initPixelMap() {
   ctx = canvasElement.offscreenCanvas.getContext('2d') as CanvasRenderingContext2D
 
   board.value.pixels.forEach((pixel) => {
-    ctx.fillStyle = pixel.color.value
+    ctx.fillStyle = pixel.color
     ctx.fillRect(pixel.col, pixel.row, 1, 1)
   })
 
@@ -111,9 +111,7 @@ function initWebSocket() {
     const parsed = JSON.parse(data as string)
 
     if (parsed.event === 0) {
-      const color = colorStore.getColorById(parsed.data.colorId)
-
-      ctx.fillStyle = color?.value
+      ctx.fillStyle = parsed.data.color
       ctx.fillRect(parsed.data.x, parsed.data.y, 1, 1)
       canvasElement?.getContext('2d').drawImage(canvasElement.offscreenCanvas, 0, 0)
     }

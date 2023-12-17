@@ -10,5 +10,8 @@ export default new Schema<IPixel>({
     type: Number,
     required: true
   },
-  color: { type: Schema.Types.ObjectId, ref: 'Color' }
+  color: {
+    type: String,
+    required: true
+  }
 })

@@ -8,15 +8,10 @@ interface IBoard {
   pixels: Types.ObjectId[]
 }
 
-interface IColor {
-  name: string
-  value: string
-}
-
 interface IPixel {
   col: number
   row: number
-  color: Types.ObjectId
+  color: string
   board: Types.ObjectId
 }
 

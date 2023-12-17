@@ -20,7 +20,7 @@ nav {
   justify-content: space-between;
   align-items: center;
   gap: var(--space0);
-  background-color: var(--accent-color);
+  background-color: black;
   padding: var(--space0);
   border-radius: var(--border-radius-1);
 }

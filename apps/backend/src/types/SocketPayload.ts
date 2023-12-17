@@ -6,7 +6,7 @@ enum SocketEvent {
 interface PixelData {
   x: number
   y: number
-  colorId: string
+  color: string
 }
 
 export interface SocketPayload {

@@ -1,6 +1,6 @@
 import express from 'express'
 import cors from 'cors'
-import { boardsRouter, colorRouter, authRouter } from './routes'
+import { boardsRouter, authRouter } from './routes'
 import http from 'http'
 import dotenv from 'dotenv'
 import PixelDb from './config/mongodb'
@@ -19,7 +19,6 @@ const pixelDb = new PixelDb()
 pixelDb.init()
 
 app.use(boardsRouter)
-app.use(colorRouter)
 app.use(authRouter)
 
 const server = http.createServer(app)
