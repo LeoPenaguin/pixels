@@ -12,4 +12,4 @@ async function getBoard(id: string): Promise<IBoard> {
   return await rawResponse.json()
 }
 
-export { getBoards, getBoard }
+export { getBoard }

@@ -9,12 +9,13 @@
 </template>
 
 <script lang="ts" setup>
-import { onMounted } from 'vue'
+import { onMounted, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useColorStore } from '@/stores/color'
 import { useCursorStore } from '@/stores/cursor'
 import { useBoardStore } from '@/stores/board'
 import { usePixelStore } from '@/stores/pixel'
+import { useWebSocket } from '@vueuse/core'
 
 const colorStore = useColorStore()
 const cursorStore = useCursorStore()
@@ -104,17 +105,19 @@ function mouseLeave() {
 }
 
 function initWebSocket() {
-  const connection = new WebSocket('ws://localhost:3007')
+  const { data } = useWebSocket('ws://localhost:3007')
 
-  connection.onmessage = function (event: MessageEvent) {
-    const parsed = JSON.parse(event.data)
+  watch(data, (data) => {
+    const parsed = JSON.parse(data as string)
 
-    if (parsed.name === 'new pixel') {
-      ctx.fillStyle = parsed.pixel.color.value
-      ctx.fillRect(parsed.pixel.col, parsed.pixel.row, 1, 1)
+    if (parsed.event === 0) {
+      const color = colorStore.getColorById(parsed.data.colorId)
+
+      ctx.fillStyle = color?.value
+      ctx.fillRect(parsed.data.x, parsed.data.y, 1, 1)
       canvasElement?.getContext('2d').drawImage(canvasElement.offscreenCanvas, 0, 0)
     }
-  }
+  })
 }
 
 onMounted(() => {
@@ -127,8 +130,8 @@ onMounted(() => {
 <style lang="scss" scoped>
 .pixel-map {
   display: flex;
-  width: 1000px;
-  height: 1000px;
+  height: 500px;
+  aspect-ratio: 1;
   position: relative;
   canvas {
     aspect-ratio: 1;
@@ -141,7 +144,7 @@ onMounted(() => {
   }
   #background {
     z-index: 1;
-    background: white;
+    background: var(--grid-background-color);
     left: 0;
     top: 0;
     width: 100%;

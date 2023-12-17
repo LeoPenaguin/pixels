@@ -6,5 +6,9 @@ export const useColorStore = defineStore('color', () => {
   const colors = <Ref<IColor[]>>ref()
   const selectedColor = <Ref<IColor>>ref()
 
-  return { colors, selectedColor }
+  function getColorById(id: string) {
+    return colors.value.find((color) => color._id === id)
+  }
+
+  return { colors, selectedColor, getColorById }
 })

@@ -16,12 +16,8 @@
       >
       <span class="select-pixel__color" :style="{ backgroundColor: selectedColor.value }"></span>
       <div class="actions">
-        <button class="button-success" :onclick="paintPixel">
-          <CheckIcon />
-        </button>
-        <button class="button-error" :onclick="unselectPixel">
-          <CloseIcon />
-        </button>
+        <AtomButton icon="check" type="success" @click="paintPixel"></AtomButton>
+        <AtomButton icon="close" type="danger" @click="unselectPixel"></AtomButton>
       </div>
     </div>
   </div>
@@ -34,8 +30,8 @@ import { onMounted } from 'vue'
 import type { IColor } from '@pixels/typings'
 import { usePixelStore } from '@/stores/pixel'
 import { useBoardStore } from '@/stores/board'
-import CheckIcon from '../icons/CheckIcon.vue'
-import CloseIcon from '../icons/CloseIcon.vue'
+import { useWebSocket } from '@vueuse/core'
+import AtomButton from '@/components/ds/AtomButton.vue'
 
 const colorStore = useColorStore()
 const pixelStore = usePixelStore()
@@ -52,15 +48,18 @@ onMounted(() => {
 })
 
 const paintPixel = async () => {
-  const newPixel = await pixelStore.postPixel(
-    selectedColor.value,
-    board.value,
-    selectedPixel.value.col,
-    selectedPixel.value.row
-  )
+  const { send } = useWebSocket('ws://localhost:3007')
 
-  pixelStore.startPixelTimer()
-  boardStore.replaceBoardPixel(newPixel)
+  send(
+    JSON.stringify({
+      event: 0,
+      data: {
+        colorId: selectedColor.value._id,
+        x: selectedPixel.value.col,
+        y: selectedPixel.value.row
+      }
+    })
+  )
 }
 
 const unselectPixel = () => {
@@ -88,34 +87,32 @@ onMounted(() => {
   align-items: center;
   justify-content: center;
   z-index: 1000;
-  border-radius: 5px;
   overflow: hidden;
+  gap: var(--space0);
 
   &__colors {
     display: flex;
     padding: 10px;
-    background: rgba(37, 37, 37, 0.8);
-    backdrop-filter: blur(10px);
-    border-radius: 10px;
+    background-color: var(--board-bar-color);
+    border-radius: var(--border-radius-1);
     gap: 3px;
     .item__button {
-      border: 0;
       height: 40px;
       width: 40px;
       display: block;
-      border-radius: 5px;
+      border-radius: var(--border-radius-1);
+      border: 2px solid var(--primary-color);
       &-selected {
-        border: 3px solid rgba(0, 157, 255, 0.6);
+        border: 2px solid var(--accent-color);
       }
     }
   }
   &__infos {
-    background: rgba(235, 235, 235, 0.8);
-    backdrop-filter: blur(10px);
+    border: 2px solid var(--primary-color);
+    background-color: var(--background-color);
     height: 40px;
     padding: 10px 10px 10px 20px;
-    margin: 0 10px;
-    border-radius: 10px;
+    border-radius: var(--border-radius-1);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -126,28 +123,6 @@ onMounted(() => {
       align-items: center;
       justify-content: center;
       gap: 5px;
-      button {
-        border: 0;
-        background: 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 0;
-        padding: 5px;
-        border-radius: 20px;
-        cursor: pointer;
-        &.button-success {
-          background: rgba(21, 255, 0, 0.2);
-          color: rgb(14, 162, 0);
-        }
-        &.button-error {
-          background: rgba(255, 0, 0, 0.1);
-          color: rgba(255, 0, 0);
-        }
-        &:hover {
-          background: #d2d2d2;
-        }
-      }
     }
   }
 }

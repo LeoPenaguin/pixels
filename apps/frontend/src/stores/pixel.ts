@@ -1,6 +1,5 @@
 import { ref, type Ref, computed } from 'vue'
 import { defineStore } from 'pinia'
-import { postPixel } from '@/api/pixel'
 import type { IColor } from '@pixels/typings'
 
 export const usePixelStore = defineStore('pixel', () => {
@@ -14,5 +13,5 @@ export const usePixelStore = defineStore('pixel', () => {
     }
   })
 
-  return { selectedPixel, postPixel, uiSelectedPixelPosition }
+  return { selectedPixel, uiSelectedPixelPosition }
 })

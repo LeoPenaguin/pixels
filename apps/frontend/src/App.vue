@@ -1,37 +1,35 @@
 <template>
-  <NavAndContent>
+  <NavAndContentTemplate>
     <template #nav>
       <TheHeader />
     </template>
     <template #content>
       <RouterView />
     </template>
-  </NavAndContent>
+  </NavAndContentTemplate>
 </template>
 
 <script setup lang="ts">
 import { RouterView } from 'vue-router'
-import TheHeader from '@/components/TheHeader.vue'
-import NavAndContent from '@/components/templates/NavAndContent.vue'
+import TheHeader from '@/components/header/TheHeader.vue'
+import NavAndContentTemplate from '@/components/templates/NavAndContentTemplate.vue'
 </script>
 
 <style lang="scss">
-@import '@/assets/style/theme.scss';
-
 html {
   overflow: hidden;
 }
 
 body {
   margin: 0;
-  color: $text-color;
+  color: var(--primary-color);
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   overflow: hidden;
-  background-color: $background-color;
+  background-color: var(--background-color);
 }
 
 a {
-  color: $link-color;
+  color: var(--accent-color);
   text-decoration: none;
 }
 </style>
