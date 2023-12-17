@@ -1,0 +1,27 @@
+:root {
+  /* SPACES */
+  --space0: 0.5rem;
+  --space1: 1rem;
+  --space2: 2rem;
+  --space3: 2.5rem;
+  --space4: 4rem;
+
+  /* BORDER RADIUS */
+  --border-radius-1: var(--space0);
+
+  /* COLORS */
+  --primary-color: #000000;
+  --accent-color: rgb(58, 73, 93);
+  --background-color: #ffffff;
+  /* board colors */
+  --board-background-color: #3c3c3c;
+  --grid-background-color: #ffffff;
+  --board-bar-color: var(--accent-color);
+
+  --success-color: #00b65b;
+  --warning-color: #ff9900;
+  --danger-color: #ff0000;
+
+  /* GRADIENTS */
+  --cool-gradient: linear-gradient(to right, #660066, #000066);
+}

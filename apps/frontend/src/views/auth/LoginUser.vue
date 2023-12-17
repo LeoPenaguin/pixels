@@ -17,7 +17,7 @@
         />
         <div class="error">{{ passwordError }}</div>
       </div>
-      <button @click="submit">Login</button>
+      <AtomButton text="Login" @click="submit"></AtomButton>
     </form>
   </div>
 </template>
@@ -29,6 +29,7 @@ import { useAuthStore } from '@/stores/auth'
 import { storeToRefs } from 'pinia'
 import jscookie from 'js-cookie'
 import { login } from '@/api/auth'
+import AtomButton from '@/components/ds/AtomButton.vue'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -40,10 +41,7 @@ const passwordValue = ref('')
 const emailError = ref('')
 const passwordError = ref('')
 
-async function submit(e: MouseEvent) {
-  e.preventDefault()
-
-  // reset errors
+async function submit() {
   emailError.value = ''
   passwordError.value = ''
 
@@ -89,20 +87,12 @@ async function submit(e: MouseEvent) {
       input {
         font-size: 1.1rem;
         padding: 0.5rem;
-        border-radius: 0.3rem;
+        border-radius: var(--border-radius-1);
       }
       .error {
         color: red;
         margin-top: 0.1rem;
       }
-    }
-    button {
-      font-size: 1.1rem;
-      padding: 0.5rem 1rem;
-      border-radius: 0.3rem;
-      border: 0;
-      background: rgb(0, 152, 198);
-      color: white;
     }
   }
 }

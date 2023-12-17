@@ -22,7 +22,7 @@
         <input v-model="usernameValue" autocomplete="new-username" type="string" name="username" />
         <div class="error">{{ usernameError }}</div>
       </div>
-      <button @click="submit">Sign up</button>
+      <AtomButton text="Sign up" @click="submit"></AtomButton>
     </form>
   </div>
 </template>
@@ -34,6 +34,7 @@ import { useAuthStore } from '@/stores/auth'
 import { storeToRefs } from 'pinia'
 import jscookie from 'js-cookie'
 import { register } from '@/api/auth'
+import AtomButton from '@/components/ds/AtomButton.vue'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -60,7 +61,7 @@ async function submit(e: MouseEvent) {
 
   try {
     const data = await register(emailValue.value, passwordValue.value, usernameValue.value)
-    console.log(data)
+
     if (data.errors) {
       emailError.value = data.errors.email
       passwordError.value = data.errors.password
@@ -102,20 +103,12 @@ async function submit(e: MouseEvent) {
       input {
         font-size: 1.1rem;
         padding: 0.5rem;
-        border-radius: 0.3rem;
+        border-radius: var(--border-radius-1);
       }
       .error {
-        color: red;
+        color: var(--error-color);
         margin-top: 0.1rem;
       }
-    }
-    button {
-      font-size: 1.1rem;
-      padding: 0.5rem 1rem;
-      border-radius: 0.3rem;
-      border: 0;
-      background: rgb(0, 152, 198);
-      color: white;
     }
   }
 }

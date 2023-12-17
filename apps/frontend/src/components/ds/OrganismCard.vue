@@ -7,45 +7,51 @@
       <slot name="details"></slot>
     </div>
     <div class="organism-card__link">
-      <RouterLink :to="link">{{ linkText }}</RouterLink>
+      <AtomButton :text="linkText" @click="goToLink" />
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
 import type { RouteLocationRaw } from 'vue-router'
-import { RouterLink } from 'vue-router'
+import { useRouter } from 'vue-router'
+import AtomButton from './AtomButton.vue'
 
-defineProps<{
+const router = useRouter()
+
+const props = defineProps<{
   title: string
   details: string
   link: RouteLocationRaw
   linkText: string
 }>()
+
+function goToLink() {
+  router.push(props.link)
+}
 </script>
 
 <style lang="scss" scoped>
 .organism-card {
   width: 300px;
-  background: rgb(7, 229, 129);
+  border: 2px solid var(--primary-color);
   display: flex;
   flex-direction: column;
-  border-radius: 10px;
+  border-radius: var(--border-radius-1);
   overflow: hidden;
-  &__title {
-    padding: 10px;
-  }
+  padding: 10px;
   &__details {
     flex: 1;
-    padding: 10px;
   }
   &__link {
     a {
-      background: yellow;
+      border: 2px solid var(--primary-color);
+      color: var(--primary-color);
       display: block;
       width: 100%;
       padding: 10px;
       box-sizing: border-box;
+      border-radius: var(--border-radius-1);
     }
   }
 }
