@@ -8,15 +8,10 @@ interface IBoard {
   pixels: Types.ObjectId[]
 }
 
-interface IColor {
-  name: string
-  value: string
-}
-
 interface IPixel {
-  col: number
-  row: number
-  color: Types.ObjectId
+  x: number
+  y: number
+  color: string
   board: Types.ObjectId
 }
 
@@ -31,16 +26,13 @@ interface UserModel extends Model<IUser> {
 }
 
 type IBoardDocument = Document<IBoard>
-type IColorDocument = Document<IColor>
 type IPixelDocument = Document<IPixel>
 type IUserDocument = Document<IUser>
 
 export {
   type IBoard,
-  type IColor,
   type IPixel,
   type IBoardDocument,
-  type IColorDocument,
   type IPixelDocument,
   type IUser,
   type IUserDocument,

@@ -1,23 +1,31 @@
 <template>
   <div class="board-bar">
-    <div class="board-bar__colors">
-      <div v-for="color in colors" :key="color.name" class="color">
-        <button
-          :style="{ backgroundColor: color.value }"
-          :class="['item__button', { 'item__button-selected': selectedColor === color }]"
-          @click="clickedColor(color)"
-        ></button>
+    <div class="left"></div>
+    <div class="middle">
+      <div class="board-bar__colors">
+        <div v-for="color in colors" :key="color" class="color">
+          <button
+            :style="{ backgroundColor: color }"
+            :class="['item__button', { 'item__button-selected': selectedColor === color }]"
+            @click="clickedColor(color)"
+          ></button>
+        </div>
+      </div>
+      <div v-if="selectedPixel" class="board-bar__infos">
+        <span
+          ><b>x</b> {{ uiSelectedPixelPosition?.x || 0 }} <b>y</b>
+          {{ uiSelectedPixelPosition?.y || 0 }}</span
+        >
+        <span class="select-pixel__color" :style="{ backgroundColor: selectedColor.value }"></span>
+        <div class="actions">
+          <AtomButton icon="check" type="success" @click="paintPixel"></AtomButton>
+          <AtomButton icon="close" type="danger" @click="unselectPixel"></AtomButton>
+        </div>
       </div>
     </div>
-    <div v-if="selectedPixel" class="board-bar__infos">
-      <span
-        ><b>x</b> {{ uiSelectedPixelPosition?.col || 0 }} <b>y</b>
-        {{ uiSelectedPixelPosition?.row || 0 }}</span
-      >
-      <span class="select-pixel__color" :style="{ backgroundColor: selectedColor.value }"></span>
-      <div class="actions">
-        <AtomButton icon="check" type="success" @click="paintPixel"></AtomButton>
-        <AtomButton icon="close" type="danger" @click="unselectPixel"></AtomButton>
+    <div class="right">
+      <div class="board-bar__toggle-sidebar">
+        <AtomButton icon="check" type="primary" @click="toggleSidebar"></AtomButton>
       </div>
     </div>
   </div>
@@ -27,19 +35,19 @@
 import { useColorStore } from '@/stores/color'
 import { storeToRefs } from 'pinia'
 import { onMounted } from 'vue'
-import type { IColor } from '@pixels/typings'
 import { usePixelStore } from '@/stores/pixel'
-import { useBoardStore } from '@/stores/board'
-import { useWebSocket } from '@vueuse/core'
+import { useWebsocketStore } from '@/stores/websocket'
 import AtomButton from '@/components/ds/AtomButton.vue'
+import { useSidebarStore } from '@/stores/sidebar'
+
+const sidebarStore = useSidebarStore()
+const websocketStore = useWebsocketStore()
 
 const colorStore = useColorStore()
 const pixelStore = usePixelStore()
-const boardStore = useBoardStore()
 
 const { colors, selectedColor } = storeToRefs(colorStore)
 const { selectedPixel, uiSelectedPixelPosition } = storeToRefs(pixelStore)
-const { board } = storeToRefs(boardStore)
 
 onMounted(() => {
   if (!selectedColor.value) {
@@ -48,15 +56,17 @@ onMounted(() => {
 })
 
 const paintPixel = async () => {
-  const { send } = useWebSocket('ws://localhost:3007')
+  if (!selectedPixel.value) {
+    return
+  }
 
-  send(
+  websocketStore.send(
     JSON.stringify({
       event: 0,
       data: {
-        colorId: selectedColor.value._id,
-        x: selectedPixel.value.col,
-        y: selectedPixel.value.row
+        color: selectedColor.value,
+        x: selectedPixel.value.x,
+        y: selectedPixel.value.y
       }
     })
   )
@@ -66,8 +76,12 @@ const unselectPixel = () => {
   selectedPixel.value = null
 }
 
-function clickedColor(color: IColor) {
+function clickedColor(color: string) {
   selectedColor.value = color
+}
+
+function toggleSidebar() {
+  sidebarStore.toggleSidebarVisibility()
 }
 
 onMounted(() => {
@@ -84,39 +98,55 @@ onMounted(() => {
 <style lang="scss" scropped>
 .board-bar {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
+  align-items: flex-end;
+  justify-content: space-between;
   overflow: hidden;
   gap: var(--space0);
 
-  &__colors {
+  .left,
+  .middle,
+  .right {
     display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    flex: 1;
+    gap: var(--space0);
+  }
+
+  .middle {
+    flex: 2;
+  }
+
+  .right {
+    justify-content: flex-end;
+  }
+
+  &__colors {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
     padding: 10px;
     background-color: var(--board-bar-color);
     border-radius: var(--border-radius-1);
     gap: 3px;
     .item__button {
-      height: 40px;
-      width: 40px;
+      height: 25px;
+      width: 25px;
       display: block;
       border-radius: var(--border-radius-1);
-      border: 2px solid var(--primary-color);
+      border: 2px solid transparent;
       &-selected {
-        border: 2px solid var(--accent-color);
+        border-color: var(--accent-color);
       }
     }
   }
   &__infos {
-    border: 2px solid var(--primary-color);
     background-color: var(--background-color);
-    height: 40px;
-    padding: 10px 10px 10px 20px;
+    padding: var(--space0) var(--space0) var(--space0) var(--space1);
     border-radius: var(--border-radius-1);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 20px;
+    font-size: 16px;
     gap: 10px;
     .actions {
       display: flex;

@@ -1,11 +1,7 @@
 <template>
   <div class="nav-and-content">
-    <div>
-      <slot name="nav"> Empty header </slot>
-    </div>
-    <div>
-      <slot name="content"> Empty content </slot>
-    </div>
+    <slot name="nav"> Empty header </slot>
+    <slot name="content"> Empty content </slot>
   </div>
 </template>
 

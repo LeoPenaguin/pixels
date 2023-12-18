@@ -2,13 +2,16 @@ import { Schema } from 'mongoose'
 import { IPixel } from '@pixels/typings'
 
 export default new Schema<IPixel>({
-  col: {
+  x: {
     type: Number,
     required: true
   },
-  row: {
+  y: {
     type: Number,
     required: true
   },
-  color: { type: Schema.Types.ObjectId, ref: 'Color' }
+  color: {
+    type: String,
+    required: true
+  }
 })

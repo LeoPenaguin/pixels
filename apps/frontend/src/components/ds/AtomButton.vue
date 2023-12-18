@@ -41,7 +41,7 @@ button {
   background: var(--accent-color);
   border: none;
   border-radius: 5px;
-  padding: 10px 20px;
+  padding: var(--space0) var(--space1);
   color: var(--background-color);
   display: inline-block;
   cursor: pointer;
@@ -51,8 +51,8 @@ button {
   font-weight: 500;
   &.icon {
     padding: 10px;
-    width: 40px;
-    height: 40px;
+    width: 30px;
+    height: 30px;
     display: flex;
     align-items: center;
     justify-content: center;

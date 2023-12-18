@@ -1,9 +1,7 @@
 <template>
   <div class="board-content">
     <PixelMap v-if="board" />
-    <div class="board-content__bottom">
-      <PixelMapBar v-if="board" />
-    </div>
+    <PixelMapBar v-if="board" class="board-content__bottom" />
   </div>
 </template>
 
@@ -13,21 +11,14 @@ import PixelMapBar from '@/components/boardPage/PixelMapBar.vue'
 import { useBoardStore } from '@/stores/board'
 import { storeToRefs } from 'pinia'
 import { onMounted } from 'vue'
-import { useColorStore } from '@/stores/color'
-import { getColors } from '@/api/color'
-import { getBoard } from '@/api/board'
-import { useRoute } from 'vue-router'
+import { getDefaultBoard } from '@/api/board'
 
-const colorStore = useColorStore()
 const boardStore = useBoardStore()
-const route = useRoute()
 
-const { colors } = storeToRefs(colorStore)
 const { board } = storeToRefs(boardStore)
 
 onMounted(async () => {
-  colors.value = await getColors()
-  board.value = await getBoard(route.params.id as string)
+  board.value = await getDefaultBoard()
 })
 </script>
 
@@ -40,13 +31,15 @@ onMounted(async () => {
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
 }
 
 .board-content__bottom {
   position: absolute;
   bottom: var(--space1);
-  width: 100%;
-  display: flex;
-  justify-content: center;
+  left: 0;
+  right: 0;
+  padding: 0 var(--space1);
+  z-index: 1000;
 }
 </style>

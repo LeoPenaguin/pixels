@@ -15,7 +15,7 @@ export const initWebsocket = function (server: Server) {
 
         // ADDPIXEL
         if (jsonMessage.event === 0) {
-          await savePixelToDB(jsonMessage.data.x, jsonMessage.data.y, jsonMessage.data.colorId)
+          await savePixelToDB(jsonMessage.data.x, jsonMessage.data.y, jsonMessage.data.color)
           broadcast(message.toString())
         }
       } catch (error) {

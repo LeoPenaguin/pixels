@@ -15,13 +15,15 @@ import { useColorStore } from '@/stores/color'
 import { useCursorStore } from '@/stores/cursor'
 import { useBoardStore } from '@/stores/board'
 import { usePixelStore } from '@/stores/pixel'
-import { useWebSocket } from '@vueuse/core'
+import { useWebsocketStore } from '@/stores/websocket'
 
 const colorStore = useColorStore()
 const cursorStore = useCursorStore()
 const boardStore = useBoardStore()
 const pixelStore = usePixelStore()
+const websocketStore = useWebsocketStore()
 
+const { data } = storeToRefs(websocketStore)
 const { board } = storeToRefs(boardStore)
 const { selectedColor } = storeToRefs(colorStore)
 const { selectedPixel } = storeToRefs(pixelStore)
@@ -44,8 +46,8 @@ function initPixelMap() {
   ctx = canvasElement.offscreenCanvas.getContext('2d') as CanvasRenderingContext2D
 
   board.value.pixels.forEach((pixel) => {
-    ctx.fillStyle = pixel.color.value
-    ctx.fillRect(pixel.col, pixel.row, 1, 1)
+    ctx.fillStyle = pixel.color
+    ctx.fillRect(pixel.x, pixel.y, 1, 1)
   })
 
   canvasElement.getContext('2d').drawImage(canvasElement.offscreenCanvas, 0, 0)
@@ -78,8 +80,8 @@ async function clickCanvas(evt: MouseEvent) {
   }
 
   selectedPixel.value = {
-    col: cursorPosition.value.x,
-    row: cursorPosition.value.y,
+    x: cursorPosition.value.x,
+    y: cursorPosition.value.y,
     color: selectedColor.value
   }
 }
@@ -104,24 +106,18 @@ function mouseLeave() {
   cursorContext.clearRect(0, 0, board.value.width, board.value.height)
 }
 
-function initWebSocket() {
-  const { data } = useWebSocket('ws://localhost:3007')
+watch(data, (newData, prevData) => {
+  console.log(newData, prevData)
+  const parsed = JSON.parse(newData as string)
 
-  watch(data, (data) => {
-    const parsed = JSON.parse(data as string)
-
-    if (parsed.event === 0) {
-      const color = colorStore.getColorById(parsed.data.colorId)
-
-      ctx.fillStyle = color?.value
-      ctx.fillRect(parsed.data.x, parsed.data.y, 1, 1)
-      canvasElement?.getContext('2d').drawImage(canvasElement.offscreenCanvas, 0, 0)
-    }
-  })
-}
+  if (parsed.event === 0) {
+    ctx.fillStyle = parsed.data.color
+    ctx.fillRect(parsed.data.x, parsed.data.y, 1, 1)
+    canvasElement?.getContext('2d').drawImage(canvasElement.offscreenCanvas, 0, 0)
+  }
+})
 
 onMounted(() => {
-  initWebSocket()
   initPixelMap()
   initCursor()
 })
