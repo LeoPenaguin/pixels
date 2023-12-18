@@ -10,7 +10,7 @@ export async function savePixelToDB(x: number, y: number, color: string) {
     return
   }
 
-  const newPixel = new Pixel({ col: x, row: y, color })
+  const newPixel = new Pixel({ x, y, color })
   await newPixel.save()
 
   dbBoard.pixels.push(newPixel._id)

@@ -13,8 +13,8 @@
       </div>
       <div v-if="selectedPixel" class="board-bar__infos">
         <span
-          ><b>x</b> {{ uiSelectedPixelPosition?.col || 0 }} <b>y</b>
-          {{ uiSelectedPixelPosition?.row || 0 }}</span
+          ><b>x</b> {{ uiSelectedPixelPosition?.x || 0 }} <b>y</b>
+          {{ uiSelectedPixelPosition?.y || 0 }}</span
         >
         <span class="select-pixel__color" :style="{ backgroundColor: selectedColor.value }"></span>
         <div class="actions">
@@ -36,11 +36,12 @@ import { useColorStore } from '@/stores/color'
 import { storeToRefs } from 'pinia'
 import { onMounted } from 'vue'
 import { usePixelStore } from '@/stores/pixel'
-import { useWebSocket } from '@vueuse/core'
+import { useWebsocketStore } from '@/stores/websocket'
 import AtomButton from '@/components/ds/AtomButton.vue'
 import { useSidebarStore } from '@/stores/sidebar'
 
 const sidebarStore = useSidebarStore()
+const websocketStore = useWebsocketStore()
 
 const colorStore = useColorStore()
 const pixelStore = usePixelStore()
@@ -55,19 +56,17 @@ onMounted(() => {
 })
 
 const paintPixel = async () => {
-  const { send } = useWebSocket('ws://localhost:3007')
-
   if (!selectedPixel.value) {
     return
   }
 
-  send(
+  websocketStore.send(
     JSON.stringify({
       event: 0,
       data: {
         color: selectedColor.value,
-        x: selectedPixel.value.col,
-        y: selectedPixel.value.row
+        x: selectedPixel.value.x,
+        y: selectedPixel.value.y
       }
     })
   )

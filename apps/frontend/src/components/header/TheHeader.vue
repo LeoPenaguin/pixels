@@ -23,5 +23,6 @@ nav {
   background-color: black;
   padding: var(--space0);
   border-radius: var(--border-radius-1);
+  color: red;
 }
 </style>

@@ -1,15 +1,20 @@
 <template>
-  <div class="board-sidebar">
-    <h1>Greenpeace</h1>
+  <div v-if="board" class="board-sidebar">
+    <h1>{{ board.name }}</h1>
     <p>
-      Lorem ipsum dolor, sit amet consectetur adipisicing elit. Saepe, quod accusamus. Doloremque,
-      sunt reprehenderit dicta ut necessitatibus voluptatibus dolorum molestiae recusandae dolor
-      quaerat cumque saepe suscipit nisi nihil, possimus obcaecati.
+      {{ board.description }}
     </p>
   </div>
 </template>
 
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { useBoardStore } from '@/stores/board'
+import { storeToRefs } from 'pinia'
+
+const boardStore = useBoardStore()
+
+const { board } = storeToRefs(boardStore)
+</script>
 
 <style lang="scss" scoped>
 .board-sidebar {
