@@ -1,5 +1,5 @@
 <template>
-  <div v-if="board" class="board-sidebar">
+  <div v-if="board" class="sidebar">
     <h1>{{ board.name }}</h1>
     <p>
       {{ board.description }}
@@ -17,12 +17,19 @@ const { board } = storeToRefs(boardStore)
 </script>
 
 <style lang="scss" scoped>
-.board-sidebar {
+.sidebar {
   height: 100%;
-  background: #22c1c3;
-  background: linear-gradient(322deg, rgba(34, 193, 195, 1) 0%, rgba(253, 187, 45, 1) 100%);
-  padding: var(--space0);
-  border-radius: var(--border-radius-1);
+  background: #46a059;
+  color: white;
+  padding: 30px;
+  border-radius: 10px;
   box-sizing: border-box;
+  h1 {
+    font-size: 30px;
+    margin: 0;
+  }
+  p {
+    font-size: 15px;
+  }
 }
 </style>

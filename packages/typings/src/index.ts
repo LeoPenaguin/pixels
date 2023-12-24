@@ -5,14 +5,7 @@ interface IBoard {
   description: string
   width: number
   height: number
-  pixels: Types.ObjectId[]
-}
-
-interface IPixel {
-  x: number
-  y: number
-  color: string
-  board: Types.ObjectId
+  pixels: { x: number; y: number; color: string }[]
 }
 
 interface IUser {
@@ -26,15 +19,6 @@ interface UserModel extends Model<IUser> {
 }
 
 type IBoardDocument = Document<IBoard>
-type IPixelDocument = Document<IPixel>
 type IUserDocument = Document<IUser>
 
-export {
-  type IBoard,
-  type IPixel,
-  type IBoardDocument,
-  type IPixelDocument,
-  type IUser,
-  type IUserDocument,
-  type UserModel
-}
+export { type IBoard, type IBoardDocument, type IUser, type IUserDocument, type UserModel }

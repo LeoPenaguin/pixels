@@ -1,31 +1,20 @@
 <template>
-  <button :class="[{ outlined }, type, { icon: !!icon }]" @click="onClicked">
-    <span v-if="icon">
-      <CheckIcon v-if="icon === 'check'" />
-      <CloseIcon v-if="icon === 'close'" />
-      <LogoutIcon v-if="icon === 'logout'" />
-    </span>
+  <button :class="[{ outlined }, type]" @click="onClicked">
     <span v-if="text">{{ text }}</span>
   </button>
 </template>
 
 <script lang="ts" setup>
-import CloseIcon from '@/components/icons/CloseIcon.vue'
-import CheckIcon from '@/components/icons/CheckIcon.vue'
-import LogoutIcon from '@/components/icons/LogoutIcon.vue'
-
 interface Props {
   text?: string
   outlined?: boolean
   type?: 'primary' | 'success' | 'warning' | 'danger'
-  icon?: 'check' | 'close' | 'logout'
 }
 
 withDefaults(defineProps<Props>(), {
   text: undefined,
   outlined: false,
-  type: 'primary',
-  icon: undefined
+  type: 'primary'
 })
 
 const emit = defineEmits(['click'])

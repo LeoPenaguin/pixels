@@ -1,5 +1,8 @@
 <template>
-  <div class="pixel-map">
+  <div class="board-canvas">
+    <div ref="mouseCursor" class="mouse-cursor"></div>
+    <MouseCursor />
+
     <canvas id="cursor" @mousemove="mouseMove" @mouseleave="mouseLeave" @click="clickCanvas"
       >Cursor</canvas
     >
@@ -9,24 +12,22 @@
 </template>
 
 <script lang="ts" setup>
-import { onMounted, watch } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useColorStore } from '@/stores/color'
 import { useCursorStore } from '@/stores/cursor'
 import { useBoardStore } from '@/stores/board'
-import { usePixelStore } from '@/stores/pixel'
 import { useWebsocketStore } from '@/stores/websocket'
+import MouseCursor from '@/components/board/overlay/MouseCursor.vue'
 
 const colorStore = useColorStore()
 const cursorStore = useCursorStore()
 const boardStore = useBoardStore()
-const pixelStore = usePixelStore()
 const websocketStore = useWebsocketStore()
 
 const { data } = storeToRefs(websocketStore)
 const { board } = storeToRefs(boardStore)
 const { selectedColor } = storeToRefs(colorStore)
-const { selectedPixel } = storeToRefs(pixelStore)
 const { cursorPosition } = storeToRefs(cursorStore)
 
 let canvasElement: HTMLCanvasElement | null = null
@@ -34,8 +35,14 @@ let cursorCanvasElement: HTMLCanvasElement | null = null
 let cursorContext: CanvasRenderingContext2D | null = null
 let ctx: CanvasRenderingContext2D | null = null
 
+const mouseCursor = ref<HTMLDivElement>()
+
 function initPixelMap() {
   canvasElement = document.getElementById('game') as HTMLCanvasElement
+
+  if (!canvasElement) {
+    return
+  }
 
   canvasElement.width = board.value.width
   canvasElement.height = board.value.height
@@ -79,15 +86,24 @@ async function clickCanvas(evt: MouseEvent) {
     return
   }
 
-  selectedPixel.value = {
-    x: cursorPosition.value.x,
-    y: cursorPosition.value.y,
-    color: selectedColor.value
-  }
+  paintPixel()
+}
+
+const paintPixel = async () => {
+  websocketStore.send(
+    JSON.stringify({
+      event: 0,
+      data: {
+        color: selectedColor.value,
+        x: cursorPosition.value.x,
+        y: cursorPosition.value.y
+      }
+    })
+  )
 }
 
 function mouseMove(evt: MouseEvent) {
-  if (!cursorCanvasElement && !cursorContext) {
+  if (!cursorCanvasElement || !cursorContext) {
     return
   }
 
@@ -99,15 +115,14 @@ function mouseMove(evt: MouseEvent) {
 }
 
 function mouseLeave() {
-  if (!cursorCanvasElement && !cursorContext) {
+  if (!cursorCanvasElement || !cursorContext) {
     return
   }
 
   cursorContext.clearRect(0, 0, board.value.width, board.value.height)
 }
 
-watch(data, (newData, prevData) => {
-  console.log(newData, prevData)
+watch(data, (newData) => {
   const parsed = JSON.parse(newData as string)
 
   if (parsed.event === 0) {
@@ -124,11 +139,12 @@ onMounted(() => {
 </script>
 
 <style lang="scss" scoped>
-.pixel-map {
+.board-canvas {
   display: flex;
   height: 500px;
   aspect-ratio: 1;
   position: relative;
+  cursor: none;
   canvas {
     aspect-ratio: 1;
     image-rendering: pixelated;
@@ -140,7 +156,7 @@ onMounted(() => {
   }
   #background {
     z-index: 1;
-    background: var(--grid-background-color);
+    background: white;
     left: 0;
     top: 0;
     width: 100%;

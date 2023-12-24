@@ -1,11 +1,11 @@
 <template>
   <div
-    class="board-page-template"
-    :class="{ 'board-page-template--sidebar-is-visible': sidebarIsVisible }"
+    class="canvas-page-layout"
+    :class="{ 'canvas-page-layout--sidebar-is-visible': sidebarIsVisible }"
   >
-    <slot name="content"> Empty header </slot>
+    <slot name="content"> Empty content </slot>
     <div v-show="sidebarIsVisible">
-      <slot name="sidebar"></slot>
+      <slot name="sidebar"> Empty sidebar </slot>
     </div>
   </div>
 </template>
@@ -20,7 +20,7 @@ const { sidebarIsVisible } = storeToRefs(sidebarStore)
 </script>
 
 <style lang="scss" scropped>
-.board-page-template {
+.canvas-page-layout {
   display: grid;
   grid-template-columns: 1fr 0;
   grid-template-rows: 1fr;
@@ -30,7 +30,7 @@ const { sidebarIsVisible } = storeToRefs(sidebarStore)
   overflow: hidden;
   &--sidebar-is-visible {
     grid-template-columns: 1fr 300px;
-    gap: var(--space0);
+    gap: 7px;
   }
 }
 </style>

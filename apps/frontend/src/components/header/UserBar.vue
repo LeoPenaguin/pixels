@@ -1,12 +1,12 @@
 <template>
   <div class="nav-user">
     <template v-if="!user">
-      <AtomButton text="Login" outlined @click="goToLoginPage"></AtomButton>
-      <AtomButton text="Sign up" @click="goToSignupPage"></AtomButton>
+      <NavButton text="Login" @click="goToLoginPage"></NavButton>
+      <NavButton text="Sign up" @click="goToSignupPage"></NavButton>
     </template>
     <template v-else>
       <div class="nav-user__username">{{ user.username }}</div>
-      <AtomButton icon="logout" type="warning" outlined @click="logout"></AtomButton>
+      <NavButton text="Logout" @click="logout"></NavButton>
     </template>
   </div>
 </template>
@@ -16,7 +16,7 @@ import { useRouter } from 'vue-router'
 import { RouteNames } from '@/router/types/routes'
 import { useAuthStore } from '@/stores/auth'
 import { storeToRefs } from 'pinia'
-import AtomButton from '@/components/ds/AtomButton.vue'
+import NavButton from '@/components/ds/NavButton.vue'
 
 const authStore = useAuthStore()
 const { user } = storeToRefs(authStore)

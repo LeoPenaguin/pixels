@@ -1,4 +1,4 @@
-import { Board, Pixel } from '../../models'
+import { Board } from '../../models'
 
 export async function savePixelToDB(x: number, y: number, color: string) {
   const defaultBoardID = process.env.DEFAULT_BOARD_ID
@@ -10,10 +10,16 @@ export async function savePixelToDB(x: number, y: number, color: string) {
     return
   }
 
-  const newPixel = new Pixel({ x, y, color })
-  await newPixel.save()
+  const pixelIndex = dbBoard.pixels.findIndex(
+    (pixel: { x: number; y: number; color: string }) => pixel.x === x && pixel.y === y
+  )
 
-  dbBoard.pixels.push(newPixel._id)
+  if (pixelIndex !== -1) {
+    dbBoard.pixels[pixelIndex].color = color
+  } else {
+    dbBoard.pixels.push({ x, y, color })
+  }
+
   await dbBoard.save()
 
   return

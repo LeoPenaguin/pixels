@@ -1,7 +1,7 @@
-import { Schema } from 'mongoose'
+import { Schema, models } from 'mongoose'
 import { IBoard } from '@pixels/typings'
 
-export default new Schema<IBoard>({
+const boardSchema = new Schema<IBoard>({
   name: {
     type: String,
     required: true
@@ -20,8 +20,20 @@ export default new Schema<IBoard>({
   },
   pixels: [
     {
-      type: Schema.Types.ObjectId,
-      ref: 'Pixel'
+      x: {
+        type: Number,
+        required: true
+      },
+      y: {
+        type: Number,
+        required: true
+      },
+      color: {
+        type: String,
+        required: true
+      }
     }
   ]
 })
+
+export default boardSchema

@@ -1,18 +1,15 @@
 <template>
-  <NavAndContentTemplate>
-    <template #nav>
-      <TheHeader />
-    </template>
-    <template #content>
+  <div class="app">
+    <TheHeader />
+    <div class="app-content">
       <RouterView />
-    </template>
-  </NavAndContentTemplate>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
 import { RouterView } from 'vue-router'
 import TheHeader from '@/components/header/TheHeader.vue'
-import NavAndContentTemplate from '@/components/templates/NavAndContentTemplate.vue'
 </script>
 
 <style lang="scss">
@@ -26,6 +23,15 @@ body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   overflow: hidden;
   background-color: var(--background-color);
+}
+
+.app {
+  height: 100vh;
+  padding: 7px;
+  display: grid;
+  gap: 7px;
+  grid-template-rows: auto 1fr;
+  box-sizing: border-box;
 }
 
 a {

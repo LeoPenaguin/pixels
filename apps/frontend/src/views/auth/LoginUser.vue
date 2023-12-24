@@ -17,7 +17,7 @@
         />
         <div class="error">{{ passwordError }}</div>
       </div>
-      <AtomButton text="Login" @click="submit"></AtomButton>
+      <FormButton text="Login" @click="submit"></FormButton>
     </form>
   </div>
 </template>
@@ -29,7 +29,7 @@ import { useAuthStore } from '@/stores/auth'
 import { storeToRefs } from 'pinia'
 import jscookie from 'js-cookie'
 import { login } from '@/api/auth'
-import AtomButton from '@/components/ds/AtomButton.vue'
+import FormButton from '@/components/ds/FormButton.vue'
 
 const router = useRouter()
 const authStore = useAuthStore()

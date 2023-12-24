@@ -22,7 +22,7 @@
         <input v-model="usernameValue" autocomplete="new-username" type="string" name="username" />
         <div class="error">{{ usernameError }}</div>
       </div>
-      <AtomButton text="Sign up" @click="submit"></AtomButton>
+      <FormButton text="Sign up" @click="submit"></FormButton>
     </form>
   </div>
 </template>
@@ -34,7 +34,7 @@ import { useAuthStore } from '@/stores/auth'
 import { storeToRefs } from 'pinia'
 import jscookie from 'js-cookie'
 import { register } from '@/api/auth'
-import AtomButton from '@/components/ds/AtomButton.vue'
+import FormButton from '@/components/ds/FormButton.vue'
 
 const router = useRouter()
 const authStore = useAuthStore()

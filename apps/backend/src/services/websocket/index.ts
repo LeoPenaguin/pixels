@@ -13,7 +13,6 @@ export const initWebsocket = function (server: Server) {
       try {
         const jsonMessage = JSON.parse(message.toString()) as SocketPayload
 
-        // ADDPIXEL
         if (jsonMessage.event === 0) {
           await savePixelToDB(jsonMessage.data.x, jsonMessage.data.y, jsonMessage.data.color)
           broadcast(message.toString())
