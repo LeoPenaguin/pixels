@@ -1,13 +1,13 @@
 # Pixels
 
-Une grille de pixels infinie et collaborative, façon r/place, qu'on parcourt comme un canevas Figma.
+An infinite, collaborative pixel canvas in the spirit of r/place, navigated like a Figma board.
 
-- **server/** : Go. HTTP + WebSocket, stockage dans Redis.
-- **web/** : Svelte 5 + Vite. Un seul `<canvas>` plein écran.
+- **server/**: Go. HTTP + WebSocket, storage in Redis.
+- **web/**: Svelte 5 + Vite. One full-screen `<canvas>`. The UI is in French.
 
-## Lancer en local
+## Run locally
 
-Il faut Go, Node, pnpm et Redis (`brew install go redis pnpm`).
+Requirements: Go, Node, pnpm and Redis (`brew install go redis pnpm golangci-lint`).
 
 ```bash
 redis-server --daemonize yes
@@ -21,57 +21,65 @@ cd server && go run .
 cd web && pnpm install && pnpm dev
 ```
 
-Puis ouvrir http://localhost:5173 (Vite proxifie `/api` et `/ws` vers le serveur Go sur `:3007`).
+Then open http://localhost:5173 (Vite proxies `/api` and `/ws` to the Go server on `:3007`).
 
-## Commandes
+## Development
 
-- Glisser : se déplacer. Molette / deux doigts : se déplacer. Ctrl + molette, pincement ou `+` / `-` : zoomer.
-- Clic (sans glisser) : poser un pixel de la couleur choisie.
-- Barre d'outils en bas : le bouton palette (touche `C`) ouvre le choix des couleurs au-dessus, le carré à côté de l'icône montre la couleur active ; Échap ferme. Juste après, afficher / cacher la grille (touche `G`). À droite, la jauge du quota.
-- Boutons en bas à droite : zoomer / dézoomer, revenir en 0, 0 (touche `0`).
-- Champs X / Y en haut à gauche : ils suivent la souris ; on peut y taper des coordonnées (négatives comprises) puis Entrée pour y aller. Échap annule. Le pixel visé est entouré en bleu pendant 1 s.
-- Recentrer, zoom par boutons / clavier et saut sont animés ; pour une destination lointaine, la vue part de quelques écrans avant la cible.
-- Minimap en haut à droite : 256 pixels de monde de large (doublé par paliers si on dézoome beaucoup), le rectangle bleu montre ce qu'on voit. Glisser dedans déplace ce rectangle ; un clic y va en animation.
-- À l'ouverture, la vue se centre sur le dernier pixel qu'on a posé (mémorisé dans le navigateur) ; si on n'en a jamais posé, on revient à la dernière vue.
-- Clavier : flèches pour déplacer un curseur (Maj : 10 pixels, la vue suit), Entrée ou Espace pour poser, `?` pour la liste des raccourcis. Dans la palette, les flèches changent de couleur.
-- Accessibilité : chaque contrôle a un nom lisible (couleurs nommées en français), le board annonce le pixel visé et les pixels posés aux lecteurs d'écran, et les animations sont coupées si le système demande de réduire les animations.
-- Survoler un pixel : affiche combien de fois il a changé de couleur et quand.
+`pnpm install` also installs the Git hooks (Husky). Every command below is also run by a hook.
 
-## Fonctionnement
+| What | Command | Hook |
+|---|---|---|
+| Front lint (Prettier + ESLint) | `cd web && pnpm lint` (fix: `pnpm format`) | pre-commit |
+| Front type check | `cd web && pnpm check` | pre-commit |
+| Go lint + format check | `cd server && golangci-lint run ./...` (fix: `golangci-lint fmt`) | pre-commit |
+| Commit message | Conventional Commits, checked by commitlint | commit-msg |
+| Branch name | `<type>/<kebab-case>` | pre-push |
+| Front unit tests, 100 % coverage | `cd web && pnpm test` | pre-push |
+| Go tests, 100 % coverage | `cd server && go test -race -cover ./internal/...` | pre-push |
+| End-to-end tests | `cd web && pnpm test:e2e` | pre-push |
 
-- Le monde va de -1 048 576 à 1 048 575 sur chaque axe, découpé en chunks de 256×256.
-- Chaque chunk est une chaîne Redis `chunk:{cx}:{cy}` de 65 536 octets, 1 octet = index dans la palette (0 = blanc = jamais peint).
-- Son historique est dans le hash `meta:{cx}:{cy}` : `n:{offset}` = nombre de changements de couleur, `t:{offset}` = date du dernier (ms Unix).
-- Poser un pixel = un script Lua atomique : si la couleur change, il écrit l'octet (`SETRANGE`), incrémente le compteur et date le changement. Reposer la même couleur ne compte pas.
-- `GET /api/pixels/{x}/{y}` renvoie `{x, y, c, changes, lastChange}` ; le front l'affiche sous les coordonnées du pixel survolé.
-- Le client charge les chunks visibles (`GET /api/chunks/{cx}/{cy}`, octets bruts) et reçoit les pixels en direct via `/ws`.
-- Protocole WS : le client envoie `{"x","y","c"}`. Le serveur répond `{"t":"q","n"}` (pixels restants dans le quota) et diffuse toutes les 100 ms un lot `{"t":"b","p":[x,y,c, x,y,c, …]}` avec tous les pixels posés entre-temps.
+- Front unit tests run in a real headless Chromium (Vitest browser mode). Once: `cd web && pnpm exec playwright install chromium`.
+- Go tests use an in-memory Redis (miniredis): no Redis needed.
+- End-to-end tests start their own Go server (`:3017`, Redis database 14) and Vite (`:5183`): Redis must be running.
 
-## Protections (sans compte utilisateur)
+See [CLAUDE.md](CLAUDE.md) for conventions (naming, commits, branches, layout).
 
-- Validation stricte : entiers, dans les bornes du monde, couleur dans la palette.
-- Quota par IP (seau de jetons) : 10 pixels d'affilée, puis 1 de plus toutes les 2 s. Le quota survit à la déconnexion.
-- Diffusion groupée toutes les 100 ms : le nombre de messages envoyés ne dépend plus du nombre de clics.
-- Anti-flood : 10 messages/s (rafale 20) par connexion, au-delà la connexion est coupée ; messages de 256 octets max.
-- 10 connexions WebSocket max par IP ; WebSocket refusé depuis une autre origine.
+## Controls
 
-## Configuration (variables d'environnement du serveur)
+- Drag, wheel or two fingers: pan. Ctrl + wheel, pinch or `+` / `-`: zoom.
+- Click (without dragging): paint a pixel with the selected colour.
+- Bottom toolbar: palette button (`C`), with a swatch of the current colour; Escape closes it. Grid toggle (`G`). Quota gauge.
+- Bottom-right buttons: zoom in / out, back to 0, 0 (`0`), shortcut list (`?`).
+- X / Y fields (top left) follow the pointer; type coordinates and press Enter to jump there. Escape cancels.
+- Recenter, button / keyboard zoom and jumps are animated; a far jump starts a few screens before the target.
+- Minimap (top right): drag to pan, click to fly there.
+- On load, the view centres on the last pixel you painted, otherwise on your last view.
+- Keyboard: arrows move a cursor (Shift: 10 pixels, the view follows), Enter or Space paints.
+- Accessibility: every control has a name (colours have French names), the board announces the targeted and painted pixels to screen readers, and animations are disabled when the system asks for reduced motion.
+- Hovering a pixel shows how many times its colour changed and when.
 
-| Variable | Défaut |
+## How it works
+
+- The world spans -1,048,576 to 1,048,575 on each axis, split into 256×256 chunks.
+- Each chunk is a Redis string `chunk:{cx}:{cy}` of 65,536 bytes, one byte = palette index (0 = white = never painted).
+- History lives in the hash `meta:{cx}:{cy}`: `n:{offset}` = colour change count, `t:{offset}` = time of the last change (Unix ms).
+- Painting runs an atomic Lua script: if the colour changes, it writes the byte (`SETRANGE`), bumps the counter and timestamps the change. Painting the same colour again does not count.
+- `GET /api/config` returns the palette and quota; `GET /api/chunks/{cx}/{cy}` the raw chunk bytes; `GET /api/pixels/{x}/{y}` returns `{x, y, c, changes, lastChange}`.
+- WebSocket `/ws`: the client sends `{"x","y","c"}`. The server answers `{"t":"q","n"}` (remaining quota) and broadcasts every 100 ms a batch `{"t":"b","p":[x,y,c, x,y,c, …]}` of every pixel painted meanwhile.
+
+## Protections (no user accounts)
+
+- Strict validation: integers, within world bounds, colour in the palette.
+- Per-IP quota (token bucket): 10 pixels in a row, then one more every 2 s. The quota survives disconnection.
+- Batched broadcast every 100 ms: outgoing messages no longer scale with clicks.
+- Anti-flood: 10 messages/s (burst 20) per connection, beyond that the connection is closed; messages are 256 bytes max.
+- 10 WebSocket connections max per IP; cross-origin WebSockets are refused.
+
+## Server configuration (environment variables)
+
+| Variable | Default |
 |---|---|
 | `ADDR` | `:3007` |
 | `REDIS_URL` | `redis://localhost:6379` |
-| `PIXEL_BURST` | `10` (pixels posables d'affilée) |
-| `PIXEL_REFILL_MS` | `2000` (temps pour regagner 1 pixel ; `0` = illimité, pratique en dev : `PIXEL_REFILL_MS=0 go run .`) |
-
-## Tests
-
-```bash
-cd server && go test ./...
-```
-
-(Le test du script Lua utilise la base Redis 15 et la vide ; il est ignoré si Redis ne tourne pas.)
-
-```bash
-cd web && pnpm check
-```
+| `PIXEL_BURST` | `10` (pixels in a row) |
+| `PIXEL_REFILL_MS` | `2000` (time to regain one pixel; `0` = unlimited, handy in dev: `PIXEL_REFILL_MS=0 go run .`) |
