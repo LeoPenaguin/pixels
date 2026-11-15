@@ -1,0 +1,3 @@
+set -e
+(cd web && pnpm lint && pnpm check)
+(cd server && golangci-lint run ./...)

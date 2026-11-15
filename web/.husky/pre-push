@@ -1,0 +1,10 @@
+set -e
+branch=$(git rev-parse --abbrev-ref HEAD)
+if [ "$branch" != main ] && ! echo "$branch" | grep -Eq '^(feat|fix|refactor|perf|test|docs|chore|ci|build)/[a-z0-9]+(-[a-z0-9]+)*$'; then
+  echo "Bad branch name \"$branch\": expected <type>/<kebab-case>, e.g. feat/minimap-drag" >&2
+  exit 1
+fi
+(cd server && go test -race -coverprofile=/tmp/pixels-cover.out ./internal/... \
+  && go tool cover -func=/tmp/pixels-cover.out | tail -1 | grep -q '100.0%' \
+  || { echo "Go coverage below 100%" >&2; exit 1; })
+(cd web && pnpm test && pnpm test:e2e)

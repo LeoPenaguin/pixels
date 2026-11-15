@@ -1,0 +1,6 @@
+
+# Tests
+coverage
+test-results
+playwright-report
+.vitest

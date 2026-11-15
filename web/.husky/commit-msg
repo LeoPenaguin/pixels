@@ -1,0 +1,2 @@
+msg="$(pwd)/$1"
+cd web && pnpm exec commitlint --edit "$msg"
