@@ -1,11 +1,5 @@
-# Logs
-pnpm-debug.log*
-
 node_modules
-.DS_Store
 dist
-dist-ssr
-coverage
+.DS_Store
 *.local
-
-apps/**/node_modules
+.env

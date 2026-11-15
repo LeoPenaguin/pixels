@@ -1,83 +1,61 @@
-# Data Model
+# Pixels
 
-## Users Collection
+Une grille de pixels infinie et collaborative, façon r/place, qu'on parcourt comme un canevas Figma.
 
-Description: Collection to store user information.
+- **server/** : Go. HTTP + WebSocket, stockage dans Redis.
+- **web/** : Svelte 5 + Vite. Un seul `<canvas>` plein écran.
 
-Fields:
-- `_id`: ObjectId - The unique identifier for the user.
-- `username`: String - The username of the user.
-- `password`: String - The password of the user.
-- `groups`: Array of ObjectIds - References to UserGroups Collection.
-- ...
+## Lancer en local
 
-## Authentication Collection
+Il faut Go, Node, pnpm et Redis (`brew install go redis pnpm`).
 
-Description: Collection to store authentication tokens.
+```bash
+redis-server --daemonize yes
+```
 
-Fields:
-- `_id`: ObjectId - The unique identifier for the authentication record.
-- `userId`: Reference to Users Collection - The reference to the associated user.
-- `token`: String - The authentication token.
-- `expiresAt`: Date - The expiration date of the token.
-- ...
+```bash
+cd server && go run .
+```
 
-## UserGroups Collection
+```bash
+cd web && pnpm install && pnpm dev
+```
 
-Description: Collection to store user groups.
+Puis ouvrir http://localhost:5173 (Vite proxifie `/api` et `/ws` vers le serveur Go sur `:3007`).
 
-Fields:
-- `_id`: ObjectId - The unique identifier for the user group.
-- `name`: String - The name of the user group.
-- ...
+## Commandes
 
-## Colors Collection
+- Glisser : se déplacer. Molette / deux doigts : se déplacer. Ctrl + molette, pincement ou `+` / `-` : zoomer.
+- Clic (sans glisser) : poser un pixel de la couleur choisie.
 
-Description: Collection to store colors.
+## Fonctionnement
 
-Fields:
-- `_id`: ObjectId - The unique identifier for the color.
-- `name`: String - The name of the color.
-- `code`: String - The code representing the color.
-- ...
+- Le monde va de -1 048 576 à 1 048 575 sur chaque axe, découpé en chunks de 256×256.
+- Chaque chunk est une chaîne Redis `chunk:{cx}:{cy}` de 65 536 octets, 1 octet = index dans la palette (0 = blanc = jamais peint). Poser un pixel = un `SETRANGE` d'un octet, atomique.
+- Le client charge les chunks visibles (`GET /api/chunks/{cx}/{cy}`, octets bruts) et reçoit les pixels en direct via `/ws`.
+- Protocole WS : le client envoie `{"x","y","c"}` ; le serveur diffuse `{"t":"p","x","y","c"}` et répond `{"t":"cd","ms"}` (cooldown restant).
 
-## Grids Collection
+## Protections (sans compte utilisateur)
 
-Description: Collection to store grids.
+- Validation stricte : entiers, dans les bornes du monde, couleur dans la palette.
+- Cooldown par IP (Redis `SET NX PX`), 5 s par défaut.
+- Anti-flood : 5 messages/s (rafale 10) par connexion, au-delà la connexion est coupée ; messages de 256 octets max.
+- 10 connexions WebSocket max par IP ; WebSocket refusé depuis une autre origine.
 
-Fields:
-- `_id`: ObjectId - The unique identifier for the grid.
-- `name`: String - The name of the grid.
-- `ownerId`: Reference to Users Collection - The reference to the owner of the grid.
-- `groupId`: Reference to UserGroups Collection (nullable) - The reference to the user group of the grid (optional).
-- `isPublic`: Boolean - Flag indicating if the grid is public.
-- `tagIds`: Array of ObjectIds - References to Tags Collection.
-- `description`: String - The description of the grid.
-- `schedule`: Object - The scheduling information for the grid.
-  - `startTime`: Date - The start time of the grid.
-  - `endTime`: Date - The end time of the grid.
-- ...
+## Configuration (variables d'environnement du serveur)
 
-## Tags Collection
+| Variable | Défaut |
+|---|---|
+| `ADDR` | `:3007` |
+| `REDIS_URL` | `redis://localhost:6379` |
+| `COOLDOWN_MS` | `5000` |
 
-Description: Collection to store tags.
+## Tests
 
-Fields:
-- `_id`: ObjectId - The unique identifier for the tag.
-- `name`: String - The name of the tag.
-- ...
+```bash
+cd server && go test ./...
+```
 
-## Pixels Collection
-
-Description: Collection to store pixels.
-
-Fields:
-- `_id`: ObjectId - The unique identifier for the pixel.
-- `gridId`: Reference to Grids Collection - The reference to the parent grid.
-- `colorId`: Reference to Colors Collection - The reference to the color of the pixel.
-- `x`: Number - The x-coordinate of the pixel.
-- `y`: Number - The y-coordinate of the pixel.
-- `ownerId`: Reference to Users Collection - The reference to the owner of the pixel.
-- `changeHistory`: Array of objects - History of changes made to the pixel.
-  - `userId`: Reference to Users Collection - The reference to the user who made the change.
-  - `timestamp`: Date -
+```bash
+cd web && pnpm check
+```
