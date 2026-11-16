@@ -57,14 +57,14 @@ See [CLAUDE.md](CLAUDE.md) for conventions (naming, commits, branches, layout).
 - On load, the view opens on 0, 0.
 - Keyboard: arrows move a cursor (Shift: 10 pixels, the view follows), Enter or Space paints.
 - Accessibility: every control has a name (colours have French names), the board announces the targeted and painted pixels to screen readers, and animations are disabled when the system asks for reduced motion.
-- Hovering a pixel shows how many times its colour changed and when.
+- Hovering a pixel shows how many times it was painted and when it was last painted.
 
 ## How it works
 
 - The world is 1920 × 1080 (16:9) and centred on 0, 0: x from -960 to 959, y from -540 to 539. It is stored in 256×256 chunks (8 × 6, the border ones partly outside). The size is `WorldWidth` / `WorldHeight` in `server/internal/board/pixel.go`; growing it later needs no data migration.
 - Each chunk is a Redis string `chunk:{cx}:{cy}` of 65,536 bytes, one byte = palette index (0 = white = never painted).
-- History lives in the hash `meta:{cx}:{cy}`: `n:{offset}` = colour change count, `t:{offset}` = time of the last change (Unix ms).
-- Painting runs an atomic Lua script: if the colour changes, it writes the byte (`SETRANGE`), bumps the counter and timestamps the change. Painting the same colour again does not count.
+- History lives in the hash `meta:{cx}:{cy}`: `n:{offset}` = paint count, `t:{offset}` = time of the last paint (Unix ms).
+- Painting runs an atomic Lua script: it writes the byte (`SETRANGE`), bumps the counter and timestamps the paint. Repainting the same colour counts too: it costs a pixel and is broadcast like any other.
 - `GET /api/config` returns the palette and quota; `GET /api/chunks/{cx}/{cy}` the raw chunk bytes (gzipped when the client accepts it); `GET /api/pixels/{x}/{y}` returns `{x, y, c, changes, lastChange}`.
 - WebSocket `/ws`: the client sends `{"x","y","c"}`. The server answers `{"t":"q","n"}` (remaining quota) and broadcasts every 100 ms a batch `{"t":"b","p":[x,y,c, x,y,c, …]}` of every pixel painted meanwhile. Messages over 512 bytes are compressed (permessage-deflate) when the browser supports it.
 

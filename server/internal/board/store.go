@@ -26,25 +26,20 @@ type Info struct {
 	LastChange *int64 `json:"lastChange"`
 }
 
-// Atomic paint: no-op if the colour is already right (not a change), otherwise writes the
-// byte, bumps the counter and timestamps the change. Returns 1 if changed.
+// Atomic paint: writes the byte, bumps the counter and timestamps the change. Every paint
+// counts, same colour included: repainting a pixel is a deliberate (and paid) move.
 var paintScript = redis.NewScript(`
 local off = tonumber(ARGV[1])
-local old = redis.call('GETRANGE', KEYS[1], off, off)
-local oldc = 0
-if #old == 1 then oldc = string.byte(old) end
-if oldc == tonumber(ARGV[2]) then return 0 end
 redis.call('SETRANGE', KEYS[1], off, string.char(tonumber(ARGV[2])))
 redis.call('HINCRBY', KEYS[2], 'n:' .. off, 1)
 redis.call('HSET', KEYS[2], 't:' .. off, ARGV[3])
 return 1
 `)
 
-// Paint sets a pixel at time `at` (Unix ms). It reports whether its colour changed.
-func (s *Store) Paint(ctx context.Context, p Pixel, at int64) (bool, error) {
+// Paint sets a pixel at time `at` (Unix ms).
+func (s *Store) Paint(ctx context.Context, p Pixel, at int64) error {
 	id, off := Locate(p.X, p.Y)
-	n, err := paintScript.Run(ctx, s.rdb, []string{"chunk:" + id, "meta:" + id}, off, p.C, at).Int()
-	return n == 1, err
+	return paintScript.Run(ctx, s.rdb, []string{"chunk:" + id, "meta:" + id}, off, p.C, at).Err()
 }
 
 // Chunk returns a chunk's raw bytes; empty if it was never painted.

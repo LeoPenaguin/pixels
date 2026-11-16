@@ -108,7 +108,7 @@ func (s *Server) place(ctx context.Context, ip string, p board.Pixel, reply chan
 	}
 	s.paintMu.Lock()
 	defer s.paintMu.Unlock()
-	if changed, err := s.store.Paint(ctx, p, s.now().UnixMilli()); err == nil && changed {
+	if err := s.store.Paint(ctx, p, s.now().UnixMilli()); err == nil {
 		s.hub.queue(p)
 	}
 }
