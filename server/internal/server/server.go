@@ -2,10 +2,12 @@
 package server
 
 import (
+	"compress/gzip"
 	"context"
 	"encoding/json"
 	"net/http"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 
@@ -129,7 +131,16 @@ func (s *Server) chunk(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Header().Set("Content-Type", "application/octet-stream")
 	w.Header().Set("Cache-Control", "no-store")
-	_, _ = w.Write(data)
+	w.Header().Set("Vary", "Accept-Encoding")
+	// Mostly white (zeros): 64 KB shrinks to a few hundred bytes.
+	if !strings.Contains(r.Header.Get("Accept-Encoding"), "gzip") {
+		_, _ = w.Write(data)
+		return
+	}
+	w.Header().Set("Content-Encoding", "gzip")
+	gz := gzip.NewWriter(w)
+	_, _ = gz.Write(data)
+	_ = gz.Close()
 }
 
 // pixelInfo returns the colour, change count and time of the last change (null if never changed).

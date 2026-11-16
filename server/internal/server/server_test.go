@@ -86,6 +86,18 @@ func TestChunkRoute(t *testing.T) {
 	if code, body := get(t, e.url+"/api/chunks/0/0"); code != 200 || len(body) != 0 {
 		t.Errorf("never-painted chunk = %d %q; want empty 200", code, body)
 	}
+	// Without gzip support, raw bytes (the client above negotiates gzip transparently).
+	req, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, e.url+"/api/chunks/-4/2", http.NoBody)
+	req.Header.Set("Accept-Encoding", "identity")
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+	raw, _ := io.ReadAll(res.Body)
+	_ = res.Body.Close()
+	if res.Header.Get("Content-Encoding") != "" || string(raw) != "\x05" {
+		t.Errorf("identity chunk = %q %q", res.Header.Get("Content-Encoding"), raw)
+	}
 	for _, bad := range []string{"x/0", "0/y", "4/0", "-5/0", "0/3", "0/-4"} {
 		if code, _ := get(t, e.url+"/api/chunks/"+bad); code != 400 {
 			t.Errorf("/api/chunks/%s = %d; want 400", bad, code)

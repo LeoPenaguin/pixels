@@ -64,8 +64,8 @@ See [CLAUDE.md](CLAUDE.md) for conventions (naming, commits, branches, layout).
 - Each chunk is a Redis string `chunk:{cx}:{cy}` of 65,536 bytes, one byte = palette index (0 = white = never painted).
 - History lives in the hash `meta:{cx}:{cy}`: `n:{offset}` = colour change count, `t:{offset}` = time of the last change (Unix ms).
 - Painting runs an atomic Lua script: if the colour changes, it writes the byte (`SETRANGE`), bumps the counter and timestamps the change. Painting the same colour again does not count.
-- `GET /api/config` returns the palette and quota; `GET /api/chunks/{cx}/{cy}` the raw chunk bytes; `GET /api/pixels/{x}/{y}` returns `{x, y, c, changes, lastChange}`.
-- WebSocket `/ws`: the client sends `{"x","y","c"}`. The server answers `{"t":"q","n"}` (remaining quota) and broadcasts every 100 ms a batch `{"t":"b","p":[x,y,c, x,y,c, …]}` of every pixel painted meanwhile.
+- `GET /api/config` returns the palette and quota; `GET /api/chunks/{cx}/{cy}` the raw chunk bytes (gzipped when the client accepts it); `GET /api/pixels/{x}/{y}` returns `{x, y, c, changes, lastChange}`.
+- WebSocket `/ws`: the client sends `{"x","y","c"}`. The server answers `{"t":"q","n"}` (remaining quota) and broadcasts every 100 ms a batch `{"t":"b","p":[x,y,c, x,y,c, …]}` of every pixel painted meanwhile. Messages over 512 bytes are compressed (permessage-deflate) when the browser supports it.
 
 ## Protections (no user accounts)
 

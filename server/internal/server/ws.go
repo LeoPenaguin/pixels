@@ -23,7 +23,10 @@ func (s *Server) ws(w http.ResponseWriter, r *http.Request) {
 	defer s.conns.release(ip)
 
 	// Accept checks the Origin (same origin only): in dev, Vite proxies /ws.
-	conn, err := websocket.Accept(w, r, nil)
+	// Batches of digits compress well. No context takeover: no 1.2 MB writer kept per connection;
+	// messages under 512 bytes go uncompressed, and Safari does not negotiate it at all.
+	// ponytail: each batch is compressed once per client; compress once for all if CPU becomes the limit.
+	conn, err := websocket.Accept(w, r, &websocket.AcceptOptions{CompressionMode: websocket.CompressionNoContextTakeover})
 	if err != nil {
 		return
 	}
