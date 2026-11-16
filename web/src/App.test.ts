@@ -76,12 +76,19 @@ describe('painting pixels', () => {
 
   test('quota exhausted, then refilled by the server', async () => {
     const { ws } = await start()
+    board().dispatchEvent(new PointerEvent('pointermove', { clientX: 10, clientY: 10 }))
     click(10, 10)
     click(10, 10)
     click(10, 10) // quota of 2: refused without sending anything
     expect(ws.sent).toHaveLength(2)
+    await vi.waitFor(() => {
+      expect(board().style.cursor).toBe('not-allowed')
+    })
     await announced('Plus de pixel disponible, prochain dans 1 secondes')
     ws.receive({ t: 'q', n: 2 })
+    await vi.waitFor(() => {
+      expect(board().style.cursor).not.toBe('not-allowed')
+    })
     click(10, 10)
     expect(ws.sent).toHaveLength(3)
   })

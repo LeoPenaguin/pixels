@@ -224,6 +224,7 @@ describe('mouse', () => {
     pointer(canvas, 'pointermove', 310, 150) // still outside: no new call
     expect(hover).toHaveBeenCalledTimes(2)
     expect(hover).toHaveBeenLastCalledWith(null)
+    expect(canvas.style.cursor).toBe('grab') // only dragging works here
 
     pointer(canvas, 'pointerdown', 296, 150)
     pointer(canvas, 'pointerup', 296, 150)
@@ -248,6 +249,16 @@ describe('mouse', () => {
     expect(w.hover).not.toBeNull()
     pointer(canvas, 'pointerup', 224, 150)
     expect(place).not.toHaveBeenCalled()
+    expect(canvas.style.cursor).toBe('')
+  })
+
+  test('the cursor shows when a click cannot paint', () => {
+    const w = setup()
+    pointer(canvas, 'pointermove', 200, 150)
+    expect(canvas.style.cursor).toBe('')
+    w.setCanPaint(false)
+    expect(canvas.style.cursor).toBe('not-allowed')
+    w.setCanPaint(true)
     expect(canvas.style.cursor).toBe('')
   })
 
@@ -279,8 +290,10 @@ describe('minimap', () => {
     expect(w.cam.x).toBeCloseTo(25.6)
     pointer(minimap, 'pointermove', 570, 50) // already dragging: follows every move
     expect(w.cam.x).toBeCloseTo(51.2)
+    expect(minimap.style.cursor).toBe('grabbing')
     pointer(minimap, 'pointerup', 570, 50)
     expect(w.cam.x).toBeCloseTo(51.2)
+    expect(minimap.style.cursor).toBe('')
     await frames() // the minimap follows the view
 
     pointer(minimap, 'pointerdown', 575, 50)

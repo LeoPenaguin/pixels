@@ -41,6 +41,11 @@
   let colors: string[] = [] // flattened palette, filled when the configuration loads
   const limits = $derived(cfg?.quota.refillMs ? cfg.quota : null)
   const shownInfo = $derived(info && isHovered(info) ? info : null)
+  const canPaint = $derived(!lost && (!limits || quotaAt(limits, quota, now).available >= 1))
+  $effect(() => {
+    const v = canPaint // read first: `world?.` would skip it, and the effect would never re-run
+    world?.setCanPaint(v)
+  })
 
   /** Is p the currently targeted pixel? */
   function isHovered(p: Point) {

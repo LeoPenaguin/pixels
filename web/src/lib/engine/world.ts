@@ -60,6 +60,7 @@ export class World {
   private mini = { x0: 0, y0: 0, span: MINIMAP_SPAN[0] as number } // world area shown by the minimap
   private miniTarget: number = MINIMAP_SPAN[0] // target step; `mini.span` glides towards it
   private half: Point // half the world size (see camera.ts)
+  private canPaint = true // false: no pixel left, or offline
 
   constructor(
     private canvas: HTMLCanvasElement,
@@ -140,6 +141,12 @@ export class World {
     return this.hover
   }
 
+  /** Whether a click can paint right now: shown by the cursor. */
+  setCanPaint(v: boolean) {
+    this.canPaint = v
+    this.updateCursor()
+  }
+
   /** Attaches the minimap: it follows the camera; dragging in it pans the view, clicking animates there. */
   setMinimap(m: HTMLCanvasElement) {
     this.minimap = m
@@ -156,6 +163,7 @@ export class World {
       const dy = e.clientY - last.y
       if (!last.moved && Math.hypot(dx, dy) < DRAG_THRESHOLD) return
       last = { x: e.clientX, y: e.clientY, moved: true }
+      m.style.cursor = 'grabbing'
       const k = this.mini.span / m.clientWidth
       this.clearTarget()
       this.cam = clampCam({ ...this.cam, x: this.cam.x + dx * k, y: this.cam.y + dy * k }, this.half)
@@ -171,6 +179,7 @@ export class World {
         })
       }
       last = null
+      m.style.cursor = ''
     })
     this.redraw()
   }
@@ -352,20 +361,29 @@ export class World {
         this.clearTarget()
         const { x, y, zoom } = this.cam
         this.cam = clampCam({ x: x - (e.clientX - d.lx) / zoom, y: y - (e.clientY - d.ly) / zoom, zoom }, this.half)
-        this.canvas.style.cursor = 'grabbing'
         this.redraw()
       }
       d.lx = e.clientX
       d.ly = e.clientY
     }
     this.updateHover(e)
+    this.updateCursor()
+  }
+
+  // The cursor says what the pointer would do: crosshair (CSS) = a click paints, grab = outside
+  // the world (dragging is all there is), not-allowed = a click paints nothing.
+  private updateCursor() {
+    const { style } = this.canvas
+    if (this.drag?.moved) style.cursor = 'grabbing'
+    else if (!this.hover) style.cursor = 'grab'
+    else style.cursor = this.canPaint ? '' : 'not-allowed'
   }
 
   private up = (e: PointerEvent) => {
     const d = this.drag
     if (d?.id !== e.pointerId) return
     this.drag = null
-    this.canvas.style.cursor = ''
+    this.updateCursor()
     if (!d.moved && e.button === 0) {
       const p = this.toWorld(e.offsetX, e.offsetY)
       const cell = { x: Math.floor(p.x), y: Math.floor(p.y) }
