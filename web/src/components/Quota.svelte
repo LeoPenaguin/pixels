@@ -6,6 +6,12 @@
   const { rules, snapshot, now }: Props = $props()
 
   const q = $derived(quotaAt(rules, snapshot, now))
+  // The ring runs on a CSS animation, not on `now` (which ticks every 250 ms): one loop per pixel
+  // regained, phased on the snapshot, stopping full. Restarted only when a new snapshot arrives.
+  const ring = $derived.by(() => {
+    const q0 = quotaAt(rules, snapshot, snapshot.at)
+    return { delay: -q0.progress * rules.refillMs, loops: rules.burst - q0.available }
+  })
   const s = (n: number) => (n > 1 ? 's' : '')
 </script>
 
@@ -16,12 +22,14 @@
     }`}
   </span>
   <span class="ring" aria-hidden="true">
-    <!-- Recreated on every pixel gained or spent: the ring restarts from zero without animating backwards. -->
-    {#key q.available}
-      <svg viewBox="0 0 36 36" width="34" height="34">
-        <circle class="track" cx="18" cy="18" r="15" />
+    <svg viewBox="0 0 36 36" width="34" height="34">
+      <circle class="track" cx="18" cy="18" r="15" />
+      <!-- Recreated on each snapshot: the animation restarts in phase. The attribute is the
+           fallback without animation (full, or reduced motion). -->
+      {#key snapshot}
         <circle
           class="progress"
+          class:filling={ring.loops > 0}
           cx="18"
           cy="18"
           r="15"
@@ -29,9 +37,12 @@
           stroke-dasharray="100"
           stroke-dashoffset={100 - q.progress * 100}
           transform="rotate(-90 18 18)"
+          style:animation-duration={`${String(rules.refillMs)}ms`}
+          style:animation-delay={`${String(ring.delay)}ms`}
+          style:animation-iteration-count={ring.loops}
         />
-      </svg>
-    {/key}
+      {/key}
+    </svg>
     <span class="num">{q.available}</span>
   </span>
   <span class="label" aria-hidden="true">
@@ -66,7 +77,19 @@
   .progress {
     stroke: var(--q);
     stroke-linecap: round;
-    transition: stroke-dashoffset 250ms linear;
+  }
+  .filling {
+    animation-name: fill;
+    animation-timing-function: linear;
+    animation-fill-mode: both;
+  }
+  @keyframes fill {
+    from {
+      stroke-dashoffset: 100;
+    }
+    to {
+      stroke-dashoffset: 0;
+    }
   }
   .num {
     position: absolute;
@@ -88,8 +111,8 @@
     font-variant-numeric: tabular-nums;
   }
   @media (prefers-reduced-motion: reduce) {
-    .progress {
-      transition: none;
+    .filling {
+      animation: none;
     }
   }
 </style>

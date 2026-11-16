@@ -139,6 +139,10 @@ describe('Quota', () => {
     await screen.rerender({ snapshot: { n: 0.5, at: 0 } })
     await expect.element(screen.getByText('0 pixel disponible sur 3, prochain dans 1 secondes')).toBeInTheDocument()
     await expect.element(screen.getByText('+1 dans 1 s')).toBeVisible()
+    // The ring loops once per missing pixel, half-way through the first one.
+    const ring = screen.container.querySelector<SVGElement>('.progress')!
+    expect(ring.style.animationIterationCount).toBe('3')
+    expect(ring.style.animationDelay).toBe('-500ms')
   })
 })
 
