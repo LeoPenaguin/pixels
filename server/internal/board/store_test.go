@@ -33,7 +33,7 @@ func TestPaint(t *testing.T) {
 	}
 	_, off := Locate(300, 1)
 	if b, _ := mr.Get("chunk:1:0"); b[off] != 7 {
-		t.Errorf("octet = %d ; attendu 7", b[off])
+		t.Errorf("byte = %d; want 7", b[off])
 	}
 }
 
@@ -41,7 +41,7 @@ func TestChunk(t *testing.T) {
 	s, mr := newTestStore(t)
 	ctx := context.Background()
 	if data, err := s.Chunk(ctx, 0, 0); err != nil || data != nil {
-		t.Errorf("chunk jamais peint : %v, %v ; attendu vide", data, err)
+		t.Errorf("never-painted chunk: %v, %v; want empty", data, err)
 	}
 	_ = mr.Set("chunk:-1:2", "\x00\x03")
 	if data, err := s.Chunk(ctx, -1, 2); err != nil || string(data) != "\x00\x03" {
@@ -59,7 +59,7 @@ func TestInfo(t *testing.T) {
 
 	info, err := s.Info(ctx, -3, 4)
 	if err != nil || info != (Info{X: -3, Y: 4}) {
-		t.Errorf("pixel jamais peint : %+v, %v", info, err)
+		t.Errorf("never-painted pixel: %+v, %v", info, err)
 	}
 
 	_, _ = s.Paint(ctx, Pixel{-3, 4, 9}, 1234)

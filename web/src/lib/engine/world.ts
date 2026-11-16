@@ -4,9 +4,11 @@ import type { Config } from '../api'
 import {
   HOME,
   clampCam,
+  clampPixel,
   clampZoom,
   ease,
   flightStart,
+  inWorld,
   interpolate,
   keepVisible,
   toWorld,
@@ -111,8 +113,7 @@ export class World {
   /** Animates to a pixel, then briefly highlights it. */
   jumpTo(x: number, y: number) {
     this.clearTarget()
-    const l = this.cfg.worldLimit - 1
-    const p = clampCam({ x, y, zoom: 0 }, l)
+    const p = clampPixel({ x, y }, this.cfg.worldLimit)
     const zoom = Math.max((this.anim?.to ?? this.cam).zoom, HOME.zoom)
     this.animateTo({ x: p.x + 0.5, y: p.y + 0.5, zoom }, () => {
       this.target = { x: p.x, y: p.y }
@@ -128,8 +129,7 @@ export class World {
 
   /** Keyboard cursor: targets a pixel and moves the view just enough to keep it visible. */
   setCursor(x: number, y: number): Point {
-    const l = this.cfg.worldLimit - 1
-    const p = clampCam({ x, y, zoom: 0 }, l)
+    const p = clampPixel({ x, y }, this.cfg.worldLimit)
     this.stopAnim()
     this.clearTarget()
     this.hover = { x: p.x, y: p.y }
@@ -250,14 +250,18 @@ export class World {
     if (this.showGrid && cam.zoom >= GRID_MIN_ZOOM) {
       ctx.strokeStyle = 'rgba(0,0,0,0.08)'
       ctx.lineWidth = 1 / cam.zoom
+      // Only inside the world: the area around it stays plain.
+      const L = this.cfg.worldLimit
+      const [x0, x1] = [Math.max(Math.floor(tl.x), -L), Math.min(br.x, L)]
+      const [y0, y1] = [Math.max(Math.floor(tl.y), -L), Math.min(br.y, L)]
       ctx.beginPath()
-      for (let x = Math.floor(tl.x); x <= br.x; x++) {
-        ctx.moveTo(x, tl.y)
-        ctx.lineTo(x, br.y)
+      for (let x = x0; x <= x1; x++) {
+        ctx.moveTo(x, y0)
+        ctx.lineTo(x, y1)
       }
-      for (let y = Math.floor(tl.y); y <= br.y; y++) {
-        ctx.moveTo(tl.x, y)
-        ctx.lineTo(br.x, y)
+      for (let y = y0; y <= y1; y++) {
+        ctx.moveTo(x0, y)
+        ctx.lineTo(x1, y)
       }
       ctx.stroke()
     }
@@ -310,9 +314,10 @@ export class World {
 
   private updateHover(e: PointerEvent) {
     const p = this.toWorld(e.offsetX, e.offsetY)
-    const next = { x: Math.floor(p.x), y: Math.floor(p.y) }
+    const cell = { x: Math.floor(p.x), y: Math.floor(p.y) }
+    const next = inWorld(cell, this.cfg.worldLimit) ? cell : null
     const h = this.hover
-    if (h?.x === next.x && h.y === next.y) return
+    if (h === next || (next && h?.x === next.x && h.y === next.y)) return
     this.hover = next
     this.onHover(next)
     this.redraw()
@@ -352,7 +357,8 @@ export class World {
     this.canvas.style.cursor = ''
     if (!d.moved && e.button === 0) {
       const p = this.toWorld(e.offsetX, e.offsetY)
-      this.onPlace(Math.floor(p.x), Math.floor(p.y))
+      const cell = { x: Math.floor(p.x), y: Math.floor(p.y) }
+      if (inWorld(cell, this.cfg.worldLimit)) this.onPlace(cell.x, cell.y)
     }
   }
 

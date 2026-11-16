@@ -79,21 +79,21 @@ func TestConfig(t *testing.T) {
 
 func TestChunkRoute(t *testing.T) {
 	e := newTestEnv(t, Options{Burst: 1})
-	_ = e.mr.Set("chunk:-2:3", "\x05")
-	if code, body := get(t, e.url+"/api/chunks/-2/3"); code != 200 || string(body) != "\x05" {
+	_ = e.mr.Set("chunk:-2:1", "\x05")
+	if code, body := get(t, e.url+"/api/chunks/-2/1"); code != 200 || string(body) != "\x05" {
 		t.Errorf("chunk = %d %q", code, body)
 	}
 	if code, body := get(t, e.url+"/api/chunks/0/0"); code != 200 || len(body) != 0 {
-		t.Errorf("chunk jamais peint = %d %q ; attendu 200 vide", code, body)
+		t.Errorf("never-painted chunk = %d %q; want empty 200", code, body)
 	}
-	for _, bad := range []string{"x/0", "0/y", "4096/0"} {
+	for _, bad := range []string{"x/0", "0/y", "2/0", "0/-3"} {
 		if code, _ := get(t, e.url+"/api/chunks/"+bad); code != 400 {
-			t.Errorf("/api/chunks/%s = %d ; attendu 400", bad, code)
+			t.Errorf("/api/chunks/%s = %d; want 400", bad, code)
 		}
 	}
 	e.mr.Close()
 	if code, _ := get(t, e.url+"/api/chunks/0/0"); code != 500 {
-		t.Errorf("Redis en panne = %d ; attendu 500", code)
+		t.Errorf("Redis down = %d; want 500", code)
 	}
 }
 
@@ -104,14 +104,14 @@ func TestPixelRoute(t *testing.T) {
 	if err := json.Unmarshal(body, &info); err != nil || code != 200 || info != (board.Info{X: -1, Y: 2}) {
 		t.Errorf("pixel = %d %s", code, body)
 	}
-	for _, bad := range []string{"x/0", "0/y", "1048576/0"} {
+	for _, bad := range []string{"x/0", "0/y", "512/0"} {
 		if code, _ := get(t, e.url+"/api/pixels/"+bad); code != 400 {
-			t.Errorf("/api/pixels/%s = %d ; attendu 400", bad, code)
+			t.Errorf("/api/pixels/%s = %d; want 400", bad, code)
 		}
 	}
 	e.mr.Close()
 	if code, _ := get(t, e.url+"/api/pixels/0/0"); code != 500 {
-		t.Errorf("Redis en panne = %d ; attendu 500", code)
+		t.Errorf("Redis down = %d; want 500", code)
 	}
 }
 

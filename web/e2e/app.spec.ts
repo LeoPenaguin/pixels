@@ -1,7 +1,19 @@
-import { expect, test, type Page } from '@playwright/test'
+import { expect, test, type APIRequestContext, type Page } from '@playwright/test'
 
-/** A random pixel, so tests do not depend on what Redis already holds. */
-const somewhere = () => ({ x: Math.floor(Math.random() * 1e6), y: -Math.floor(Math.random() * 1e6) })
+type PixelInfo = { x: number; y: number; c: number; changes: number }
+
+/** A random white pixel of the 1024 × 1024 world, so painting it black is always a change,
+ *  whatever earlier runs left in Redis. Returns its current history too. */
+async function whitePixel(request: APIRequestContext): Promise<PixelInfo> {
+  for (;;) {
+    const [x, y] = [0, 0].map(() => Math.floor(Math.random() * 1024) - 512)
+    const res = await request.get(`/api/pixels/${String(x)}/${String(y)}`)
+    const info = (await res.json()) as PixelInfo
+    if (info.c === 0) return info
+  }
+}
+
+const changes = (n: number) => `${String(n)} changement${n > 1 ? 's' : ''} · dernier`
 
 /** Opens the app and waits for the configuration (commands are inert before that). */
 async function open(page: Page) {
@@ -17,7 +29,8 @@ async function jumpTo(page: Page, { x, y }: { x: number; y: number }) {
 }
 
 test('painting with the keyboard: stored, broadcast, and the page reopens on it', async ({ page, browser }) => {
-  const target = somewhere()
+  const before = await whitePixel(page.request)
+  const target = { x: before.x, y: before.y }
   await open(page)
   await jumpTo(page, target)
 
@@ -28,7 +41,7 @@ test('painting with the keyboard: stored, broadcast, and the page reopens on it'
   const board2 = other.getByRole('application', { name: 'Board de pixels' })
   await board2.focus()
   await other.keyboard.press('Enter') // shows the cursor, announces the pixel
-  await expect(other.locator('[aria-live]')).toHaveText(`${String(target.x)}, ${String(target.y)} : Blanc`)
+  await expect(other.locator('[aria-live]')).toHaveText(new RegExp(`^${String(target.x)}, ${String(target.y)} : Blanc`))
 
   await page.bringToFront()
   const board = page.getByRole('application', { name: 'Board de pixels' })
@@ -38,10 +51,10 @@ test('painting with the keyboard: stored, broadcast, and the page reopens on it'
   await expect(page.locator('[aria-live]')).toHaveText(new RegExp(`posé en ${String(target.x)}, ${String(target.y)}$`))
 
   const res = await page.request.get(`/api/pixels/${String(target.x)}/${String(target.y)}`)
-  expect(await res.json()).toMatchObject({ ...target, changes: 1 })
+  expect(await res.json()).toMatchObject({ ...target, changes: before.changes + 1 })
 
   // The broadcast pixel reloads the history for the other player.
-  await expect(other.getByText(/^1 changement · dernier/)).toBeVisible()
+  await expect(other.getByText(changes(before.changes + 1))).toBeVisible()
 
   await page.reload()
   await expect(page.getByRole('spinbutton', { name: 'Coordonnée X' })).toHaveValue(String(target.x))

@@ -5,7 +5,7 @@ export type Point = { x: number; y: number }
 export type Cam = Point & { zoom: number }
 export type Viewport = { w: number; h: number }
 
-export const MIN_ZOOM = 2 // max zoom out: 1 pixel = 2 screen px, beyond that nothing is distinguishable
+export const MIN_ZOOM = 0.5 // max zoom out: the whole 1024 × 1024 world fits in 512 screen px
 export const MAX_ZOOM = 24 // max zoom in: enough to aim, more adds nothing
 export const HOME: Cam = { x: 0, y: 0, zoom: 12 }
 const MAX_FLIGHT_SCREENS = 3 // beyond that, "teleport" near the target then animate the rest
@@ -14,6 +14,15 @@ const FOLLOW_MARGIN = 80 // px: the keyboard cursor stays at least this far from
 const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v))
 
 export const clampZoom = (zoom: number) => clamp(zoom, MIN_ZOOM, MAX_ZOOM)
+
+/** Is pixel p inside the world, i.e. in [-limit, limit) on both axes? */
+export const inWorld = (p: Point, limit: number) => p.x >= -limit && p.x < limit && p.y >= -limit && p.y < limit
+
+/** Nearest world pixel to p. */
+export const clampPixel = (p: Point, limit: number): Point => ({
+  x: clamp(p.x, -limit, limit - 1),
+  y: clamp(p.y, -limit, limit - 1),
+})
 
 /** Keeps the view centre inside the world. */
 export function clampCam(cam: Cam, limit: number): Cam {

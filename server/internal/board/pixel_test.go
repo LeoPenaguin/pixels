@@ -17,14 +17,14 @@ func TestLocate(t *testing.T) {
 	for _, c := range cases {
 		id, off := Locate(c.x, c.y)
 		if id != c.id || off != c.off {
-			t.Errorf("Locate(%d, %d) = %s, %d ; attendu %s, %d", c.x, c.y, id, off, c.id, c.off)
+			t.Errorf("Locate(%d, %d) = %s, %d; want %s, %d", c.x, c.y, id, off, c.id, c.off)
 		}
 	}
 }
 
 func TestValid(t *testing.T) {
-	valid := []Pixel{{-5, 7, 0}, {WorldLimit - 1, -WorldLimit + 1, len(Palette) - 1}}
-	invalid := []Pixel{{0, 0, len(Palette)}, {0, 0, -1}, {WorldLimit, 0, 1}, {0, -WorldLimit, 1}}
+	valid := []Pixel{{-5, 7, 0}, {WorldLimit - 1, -WorldLimit, len(Palette) - 1}}
+	invalid := []Pixel{{0, 0, len(Palette)}, {0, 0, -1}, {WorldLimit, 0, 1}, {0, -WorldLimit - 1, 1}}
 	for _, p := range valid {
 		if !p.Valid() {
 			t.Errorf("%v should be valid", p)
@@ -56,7 +56,7 @@ func TestParsePixel(t *testing.T) {
 		`nope`:                  false,
 	} {
 		if _, ok := ParsePixel([]byte(in)); ok != want {
-			t.Errorf("ParsePixel(%s) = %v ; attendu %v", in, ok, want)
+			t.Errorf("ParsePixel(%s) = %v; want %v", in, ok, want)
 		}
 	}
 	if p, _ := ParsePixel([]byte(`{"x":-5,"y":7,"c":3}`)); p != (Pixel{-5, 7, 3}) {

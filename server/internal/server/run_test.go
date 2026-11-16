@@ -28,7 +28,7 @@ func TestRunConfigErrors(t *testing.T) {
 		err := Run(ctx, envOf(env))
 		cancel()
 		if err == nil || !strings.Contains(err.Error(), want) {
-			t.Errorf("%v : erreur %v ; attendu %q", env, err, want)
+			t.Errorf("%v: error %v; want %q", env, err, want)
 		}
 	}
 }

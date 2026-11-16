@@ -1,4 +1,4 @@
-// Command server runs pixels: one infinite grid split into 256×256 chunks stored in Redis.
+// Command server runs pixels: one 1024 × 1024 grid split into 256×256 chunks stored in Redis.
 // All the logic lives in internal/; this file only starts it.
 package main
 

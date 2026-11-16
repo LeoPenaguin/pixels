@@ -4,7 +4,7 @@ import type { Config } from '../lib/api'
 
 export const config: Config = {
   chunkSize: 256,
-  worldLimit: 1 << 20,
+  worldLimit: 512,
   palette: [
     ['#FFFFFF', '#000000'],
     ['#E52521', '#1F5BFF', '#2ECC40'],

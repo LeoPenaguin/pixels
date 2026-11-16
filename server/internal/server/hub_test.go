@@ -14,7 +14,7 @@ func TestHubFlush(t *testing.T) {
 
 	h.flush()
 	if len(a) != 0 {
-		t.Fatal("rien en attente : rien ne doit partir")
+		t.Fatal("nothing pending: nothing must be sent")
 	}
 
 	h.queue(board.Pixel{X: 1, Y: 2, C: 3})
@@ -29,7 +29,7 @@ func TestHubFlush(t *testing.T) {
 			t.Fatal(err)
 		}
 		if msg.T != "b" || !slices.Equal(msg.P, []int{1, 2, 4}) {
-			t.Errorf("lot = %+v ; attendu {b [1 2 4]}", msg)
+			t.Errorf("batch = %+v; want {b [1 2 4]}", msg)
 		}
 	}
 

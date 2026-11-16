@@ -53,7 +53,7 @@ func TestConnLimit(t *testing.T) {
 	}
 	first, second, third := c.acquire("a"), c.acquire("a"), c.acquire("a")
 	if !first || !second || third {
-		t.Error("2 connexions maximum par IP")
+		t.Error("at most 2 connections per IP")
 	}
 	if !c.acquire("b") {
 		t.Error("the limit must be per IP")

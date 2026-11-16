@@ -68,11 +68,11 @@ func TestPlaceAndBroadcast(t *testing.T) {
 
 	send(t, a, `{"x":3,"y":-4,"c":5}`)
 	if m := read(t, a); m.T != "q" || int(m.N) != 1 {
-		t.Errorf("quota = %+v ; attendu 1 restant", m)
+		t.Errorf("quota = %+v; want 1 left", m)
 	}
 	for _, c := range []*websocket.Conn{a, b} {
 		if m := read(t, c); m.T != "b" || len(m.P) != 3 || m.P[0] != 3 || m.P[1] != -4 || m.P[2] != 5 {
-			t.Errorf("lot = %+v", m)
+			t.Errorf("batch = %+v", m)
 		}
 	}
 	if info, _ := e.s.store.Info(context.Background(), 3, -4); info.LastChange == nil || *info.LastChange != 42 {
@@ -82,7 +82,7 @@ func TestPlaceAndBroadcast(t *testing.T) {
 	send(t, a, `not json`) // ignored
 	send(t, a, `{"x":0,"y":0,"c":1}`)
 	if m := read(t, a); m.T != "q" || int(m.N) != 0 {
-		t.Errorf("quota = %+v ; attendu 0 restant", m)
+		t.Errorf("quota = %+v; want 0 left", m)
 	}
 	read(t, a) // batch of the 2nd pixel
 	send(t, a, `{"x":9,"y":9,"c":1}`)
@@ -115,7 +115,7 @@ func TestFloodClosesConnection(t *testing.T) {
 	for {
 		if _, _, err := a.Read(ctx); err != nil {
 			if websocket.CloseStatus(err) != websocket.StatusPolicyViolation {
-				t.Errorf("fermeture = %v ; attendu StatusPolicyViolation", err)
+				t.Errorf("close = %v; want StatusPolicyViolation", err)
 			}
 			return
 		}
@@ -128,7 +128,7 @@ func TestTooManyConnections(t *testing.T) {
 		dial(t, e)
 	}
 	if _, err := tryDial(e, nil); err == nil || !strings.HasPrefix(err.Error(), "429") {
-		t.Errorf("11e connexion : %v ; attendu 429", err)
+		t.Errorf("11th connection: %v; want 429", err)
 	}
 }
 

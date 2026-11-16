@@ -128,9 +128,9 @@ describe('camera', () => {
     const w = setup()
     w.zoomBy(1.5)
     w.jumpTo(1e9, -1e9) // clamped to the world; zoom taken from the running animation
-    expect(Math.abs(w.cam.x)).toBeGreaterThan(1e5) // teleported near the target
+    expect(w.cam.x).toBeGreaterThan(300) // teleported near the target
     await settle()
-    expect(w.cam).toEqual({ x: config.worldLimit - 0.5, y: -config.worldLimit + 1.5, zoom: 18 })
+    expect(w.cam).toEqual({ x: config.worldLimit - 0.5, y: -config.worldLimit + 0.5, zoom: 18 })
     w.jumpTo(3, 4) // replaces the current highlight
     w.zoomBy(1) // keeps the end of the jump (highlight)
     await settle()
@@ -190,6 +190,27 @@ describe('mouse', () => {
     canvas.dispatchEvent(new PointerEvent('pointerleave'))
     expect(hover).toHaveBeenLastCalledWith(null)
     expect(w.hover).toBeNull()
+  })
+
+  test('outside the world: no hover, no paint, no grid', async () => {
+    const w = setup()
+    const hover = vi.fn()
+    const place = vi.fn()
+    w.onHover = hover
+    w.onPlace = place
+    w.setCam({ x: config.worldLimit, y: 0, zoom: 12 }) // the right half of the canvas is outside
+    pointer(canvas, 'pointermove', 100, 150)
+    expect(hover).toHaveBeenLastCalledWith({ x: config.worldLimit - 9, y: 0 })
+    pointer(canvas, 'pointermove', 296, 150)
+    pointer(canvas, 'pointermove', 310, 150) // still outside: no new call
+    expect(hover).toHaveBeenCalledTimes(2)
+    expect(hover).toHaveBeenLastCalledWith(null)
+
+    pointer(canvas, 'pointerdown', 296, 150)
+    pointer(canvas, 'pointerup', 296, 150)
+    expect(place).not.toHaveBeenCalled()
+    await frames()
+    expect(rgbAt(canvas, 296, 150)).toEqual([0xe5, 0xe5, 0xe5]) // where a grid line would be
   })
 
   test('dragging pans the view without painting', () => {

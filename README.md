@@ -1,6 +1,6 @@
 # Pixels
 
-An infinite, collaborative pixel canvas in the spirit of r/place, navigated like a Figma board.
+A 1024 × 1024 collaborative pixel canvas in the spirit of r/place, navigated like a Figma board.
 
 - **server/**: Go. HTTP + WebSocket, storage in Redis.
 - **web/**: Svelte 5 + Vite. One full-screen `<canvas>`. The UI is in French.
@@ -47,7 +47,7 @@ See [CLAUDE.md](CLAUDE.md) for conventions (naming, commits, branches, layout).
 ## Controls
 
 - Drag, wheel or two fingers: pan. Ctrl + wheel, pinch or `+` / `-`: zoom.
-- Click (without dragging): paint a pixel with the selected colour.
+- Click (without dragging): paint a pixel with the selected colour. Outside the 1024 × 1024 world (grey area), nothing is painted.
 - Bottom toolbar: palette button (`C`), with a swatch of the current colour; Escape closes it. Grid toggle (`G`). Quota gauge.
 - Bottom-right buttons: zoom in / out, back to 0, 0 (`0`), shortcut list (`?`).
 - X / Y fields (top left) follow the pointer; type coordinates and press Enter to jump there. Escape cancels.
@@ -60,7 +60,7 @@ See [CLAUDE.md](CLAUDE.md) for conventions (naming, commits, branches, layout).
 
 ## How it works
 
-- The world spans -1,048,576 to 1,048,575 on each axis, split into 256×256 chunks.
+- The world spans -512 to 511 on each axis (1024 × 1024 pixels, centred on 0, 0), split into 4 × 4 chunks of 256×256. The size is `WorldLimit` in `server/internal/board/pixel.go`; growing it later needs no data migration.
 - Each chunk is a Redis string `chunk:{cx}:{cy}` of 65,536 bytes, one byte = palette index (0 = white = never painted).
 - History lives in the hash `meta:{cx}:{cy}`: `n:{offset}` = colour change count, `t:{offset}` = time of the last change (Unix ms).
 - Painting runs an atomic Lua script: if the colour changes, it writes the byte (`SETRANGE`), bumps the counter and timestamps the change. Painting the same colour again does not count.

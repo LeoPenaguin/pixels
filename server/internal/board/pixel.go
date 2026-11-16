@@ -11,7 +11,7 @@ import (
 const (
 	ChunkShift = 8 // a chunk is 2^8 = 256 pixels wide
 	ChunkSize  = 1 << ChunkShift
-	WorldLimit = 1 << 20 // |x|, |y| < 1,048,576: "infinite" in practice, bounded to stay sane
+	WorldLimit = 512 // the world is [-512, 512) on each axis: 1024 × 1024 pixels, 4 × 4 chunks
 )
 
 // PaletteRows are displayed as-is by the front (greys, pastels, mid tones, darks, vivids, skin).
@@ -49,7 +49,7 @@ func ParsePixel(data []byte) (Pixel, bool) {
 
 // InWorld reports whether the point lies within the world bounds.
 func InWorld(x, y int) bool {
-	return x > -WorldLimit && x < WorldLimit && y > -WorldLimit && y < WorldLimit
+	return x >= -WorldLimit && x < WorldLimit && y >= -WorldLimit && y < WorldLimit
 }
 
 // Valid reports whether the pixel is in the world and uses a palette colour.
