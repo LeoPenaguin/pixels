@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-1024 × 1024 collaborative pixel canvas (r/place-like, navigated like Figma). Go + Redis server, Svelte 5 front.
+1920 × 1080 collaborative pixel canvas (r/place-like, navigated like Figma). Go + Redis server, Svelte 5 front.
 User-facing behaviour, protocol and configuration are described in [README.md](README.md); this file is about how to work on the code.
 
 ## Layout
@@ -13,7 +13,7 @@ server/                     Go module github.com/LeoPenaguin/pixels/server
 web/                        Svelte 5 + Vite + TypeScript, pnpm
   src/App.svelte            wiring only: engine, live connection, keyboard, panels
   src/components/           presentational Svelte components (PascalCase.svelte)
-  src/lib/                  framework-free logic: api, live (WebSocket), keyboard, quota, storage, colors, time
+  src/lib/                  framework-free logic: api, live (WebSocket), keyboard, quota, colors, time
   src/lib/engine/           canvas engine: camera (pure maths), chunks (cache), minimap, world (rendering + input)
   src/test/fakes.ts         shared test doubles (fetch, WebSocket, frames)
   e2e/                      Playwright end-to-end tests

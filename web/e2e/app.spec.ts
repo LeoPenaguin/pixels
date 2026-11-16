@@ -2,11 +2,11 @@ import { expect, test, type APIRequestContext, type Page } from '@playwright/tes
 
 type PixelInfo = { x: number; y: number; c: number; changes: number }
 
-/** A random white pixel of the 1024 × 1024 world, so painting it black is always a change,
+/** A random white pixel of the 1920 × 1080 world, so painting it black is always a change,
  *  whatever earlier runs left in Redis. Returns its current history too. */
 async function whitePixel(request: APIRequestContext): Promise<PixelInfo> {
   for (;;) {
-    const [x, y] = [0, 0].map(() => Math.floor(Math.random() * 1024) - 512)
+    const [x, y] = [1920, 1080].map((size) => Math.floor(Math.random() * size) - size / 2)
     const res = await request.get(`/api/pixels/${String(x)}/${String(y)}`)
     const info = (await res.json()) as PixelInfo
     if (info.c === 0) return info
@@ -28,7 +28,7 @@ async function jumpTo(page: Page, { x, y }: { x: number; y: number }) {
   await page.keyboard.press('Enter')
 }
 
-test('painting with the keyboard: stored, broadcast, and the page reopens on it', async ({ page, browser }) => {
+test('painting with the keyboard: stored and broadcast', async ({ page, browser }) => {
   const before = await whitePixel(page.request)
   const target = { x: before.x, y: before.y }
   await open(page)
@@ -55,10 +55,6 @@ test('painting with the keyboard: stored, broadcast, and the page reopens on it'
 
   // The broadcast pixel reloads the history for the other player.
   await expect(other.getByText(changes(before.changes + 1))).toBeVisible()
-
-  await page.reload()
-  await expect(page.getByRole('spinbutton', { name: 'Coordonnée X' })).toHaveValue(String(target.x))
-  await expect(page.getByRole('spinbutton', { name: 'Coordonnée Y' })).toHaveValue(String(target.y))
 })
 
 test('palette, grid and help from the keyboard', async ({ page }) => {

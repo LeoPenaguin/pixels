@@ -7,6 +7,7 @@ import JumpPanel from './JumpPanel.svelte'
 import NavControls from './NavControls.svelte'
 import Palette from './Palette.svelte'
 import Quota from './Quota.svelte'
+import ServerDown from './ServerDown.svelte'
 import Toolbar from './Toolbar.svelte'
 
 describe('NavControls', () => {
@@ -45,7 +46,7 @@ describe('HelpDialog', () => {
 })
 
 describe('JumpPanel', () => {
-  const base = { position: { x: 3, y: -4 }, info: null, error: '', now: 100_000, onjump: vi.fn() }
+  const base = { position: { x: 3, y: -4 }, info: null, now: 100_000, onjump: vi.fn() }
 
   test('the fields follow the position, except while typing', async () => {
     const onjump = vi.fn()
@@ -85,7 +86,7 @@ describe('JumpPanel', () => {
     await expect.element(x).toHaveValue(7)
   })
 
-  test('shows the history or the error', async () => {
+  test('shows the history', async () => {
     const screen = await render(JumpPanel, {
       ...base,
       info: { x: 3, y: -4, c: 2, changes: 3, lastChange: 100_000 - 120_000 },
@@ -97,8 +98,15 @@ describe('JumpPanel', () => {
     await expect.element(screen.getByText('Peint avant le suivi des changements')).toBeVisible()
     await screen.rerender({ info: { x: 3, y: -4, c: 0, changes: 0, lastChange: null } })
     await expect.element(screen.getByText('Jamais peint')).toBeVisible()
-    await screen.rerender({ error: 'Serveur injoignable' })
-    await expect.element(screen.getByRole('alert')).toHaveTextContent('Serveur injoignable')
+  })
+})
+
+describe('ServerDown', () => {
+  test('explains the outage and that the app retries on its own', async () => {
+    const screen = await render(ServerDown)
+    const alert = screen.getByRole('alert')
+    await expect.element(alert.getByRole('heading', { name: 'Petit souci technique' })).toBeVisible()
+    await expect.element(alert.getByText(/pas besoin de recharger la page/)).toBeVisible()
   })
 })
 

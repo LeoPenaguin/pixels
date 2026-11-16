@@ -22,8 +22,9 @@ test('clampZoom clamps the zoom', () => {
 })
 
 test('clampCam keeps the centre in the world', () => {
-  expect(clampCam({ x: 5000, y: -5000, zoom: 3 }, 1000)).toEqual({ x: 1000, y: -1000, zoom: 3 })
-  expect(clampCam({ x: 1, y: 2, zoom: 3 }, 1000)).toEqual({ x: 1, y: 2, zoom: 3 })
+  const half = { x: 1000, y: 500 }
+  expect(clampCam({ x: 5000, y: -5000, zoom: 3 }, half)).toEqual({ x: 1000, y: -500, zoom: 3 })
+  expect(clampCam({ x: 1, y: 2, zoom: 3 }, half)).toEqual({ x: 1, y: 2, zoom: 3 })
 })
 
 test('toWorld: the screen centre is the camera', () => {

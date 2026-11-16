@@ -7,11 +7,10 @@
   type Props = {
     position: Point // targeted pixel, or view centre
     info: PixelInfo | null // history of `position`, once loaded
-    error: string
     now: number
     onjump: (x: number, y: number) => void
   }
-  const { position, info, error, now, onjump }: Props = $props()
+  const { position, info, now, onjump }: Props = $props()
 
   // The fields follow `position`, except while being edited.
   let editing = $state(false)
@@ -63,9 +62,7 @@
       </svg>
     </button>
   </form>
-  {#if error}
-    <div class="info" role="alert">{error}</div>
-  {:else if info}
+  {#if info}
     <div class="info">
       {#if info.lastChange}
         {`${String(info.changes)} changement${plural(info.changes)} · dernier ${ago(info.lastChange, now)}`}

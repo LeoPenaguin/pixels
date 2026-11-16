@@ -3,6 +3,10 @@ import { config, frames, stubFetch } from '../../test/fakes'
 import { HOME } from './camera'
 import { World } from './world'
 
+// Half the world size: the world spans [-HX, HX) × [-HY, HY).
+const HX = config.worldWidth / 2
+const HY = config.worldHeight / 2
+
 let canvas: HTMLCanvasElement
 let minimap: HTMLCanvasElement
 
@@ -94,6 +98,21 @@ describe('rendering', () => {
     expect(vi.mocked(fetch).mock.calls.length).toBeGreaterThan(calls)
   })
 
+  test('chunks sticking out of the world are clipped at its edge', async () => {
+    stubFetch({
+      '/api/chunks/-4/0': () => new Response(new Uint8Array(256 * 256).fill(1)), // all black, x from -1024
+      '/api/chunks/': () => new Response(new Uint8Array()),
+    })
+    const w = setup()
+    w.toggleGrid()
+    w.setCam({ x: -HX, y: 10, zoom: 12 }) // the world's left edge is at screen x = 200
+    await vi.waitFor(async () => {
+      await frames()
+      expect(rgbAt(canvas, 210, 150)).toEqual([0, 0, 0]) // inside
+    })
+    expect(rgbAt(canvas, 190, 150)).toEqual([0xe5, 0xe5, 0xe5]) // outside: background, not the chunk
+  })
+
   test('default callbacks do nothing', async () => {
     const w = setup()
     await frames()
@@ -109,7 +128,7 @@ describe('camera', () => {
     const w = setup()
     expect(w.toWorld(200, 150)).toEqual({ x: 0, y: 0 })
     w.setCam({ x: 1e9, y: 0, zoom: 1000 })
-    expect(w.cam).toEqual({ x: config.worldLimit, y: 0, zoom: 24 })
+    expect(w.cam).toEqual({ x: HX, y: 0, zoom: 24 })
   })
 
   test('animated recenter and zoomBy, rapid presses add up', async () => {
@@ -130,7 +149,7 @@ describe('camera', () => {
     w.jumpTo(1e9, -1e9) // clamped to the world; zoom taken from the running animation
     expect(w.cam.x).toBeGreaterThan(300) // teleported near the target
     await settle()
-    expect(w.cam).toEqual({ x: config.worldLimit - 0.5, y: -config.worldLimit + 0.5, zoom: 18 })
+    expect(w.cam).toEqual({ x: HX - 0.5, y: -HY + 0.5, zoom: 18 })
     w.jumpTo(3, 4) // replaces the current highlight
     w.zoomBy(1) // keeps the end of the jump (highlight)
     await settle()
@@ -151,7 +170,7 @@ describe('camera', () => {
     await settle() // a highlight is running: the cursor clears it
     expect(w.setCursor(100, 0)).toEqual({ x: 100, y: 0 })
     expect(w.cam.x).toBeGreaterThan(80)
-    expect(w.setCursor(1e9, 0)).toEqual({ x: config.worldLimit - 1, y: 0 })
+    expect(w.setCursor(1e9, 0)).toEqual({ x: HX - 1, y: 0 })
   })
 
   test('reduced motion: instant moves', () => {
@@ -198,9 +217,9 @@ describe('mouse', () => {
     const place = vi.fn()
     w.onHover = hover
     w.onPlace = place
-    w.setCam({ x: config.worldLimit, y: 0, zoom: 12 }) // the right half of the canvas is outside
+    w.setCam({ x: HX, y: 0, zoom: 12 }) // the right half of the canvas is outside
     pointer(canvas, 'pointermove', 100, 150)
-    expect(hover).toHaveBeenLastCalledWith({ x: config.worldLimit - 9, y: 0 })
+    expect(hover).toHaveBeenLastCalledWith({ x: HX - 9, y: 0 })
     pointer(canvas, 'pointermove', 296, 150)
     pointer(canvas, 'pointermove', 310, 150) // still outside: no new call
     expect(hover).toHaveBeenCalledTimes(2)

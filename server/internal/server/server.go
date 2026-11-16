@@ -105,10 +105,11 @@ func (s *Server) place(ctx context.Context, ip string, p board.Pixel, reply chan
 
 func (s *Server) config(w http.ResponseWriter, _ *http.Request) {
 	writeJSON(w, map[string]any{
-		"chunkSize":  board.ChunkSize,
-		"worldLimit": board.WorldLimit,
-		"palette":    board.PaletteRows,
-		"quota":      map[string]any{"burst": s.opts.Burst, "refillMs": s.opts.Refill.Milliseconds()},
+		"chunkSize":   board.ChunkSize,
+		"worldWidth":  board.WorldWidth,
+		"worldHeight": board.WorldHeight,
+		"palette":     board.PaletteRows,
+		"quota":       map[string]any{"burst": s.opts.Burst, "refillMs": s.opts.Refill.Milliseconds()},
 	})
 }
 

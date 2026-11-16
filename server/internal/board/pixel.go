@@ -11,7 +11,10 @@ import (
 const (
 	ChunkShift = 8 // a chunk is 2^8 = 256 pixels wide
 	ChunkSize  = 1 << ChunkShift
-	WorldLimit = 512 // the world is [-512, 512) on each axis: 1024 × 1024 pixels, 4 × 4 chunks
+	// The world is 16:9 and centred on 0, 0: x in [-960, 960), y in [-540, 540).
+	// Edges do not fall on chunk boundaries: border chunks are partly outside.
+	WorldWidth  = 1920
+	WorldHeight = 1080
 )
 
 // PaletteRows are displayed as-is by the front (greys, pastels, mid tones, darks, vivids, skin).
@@ -49,7 +52,7 @@ func ParsePixel(data []byte) (Pixel, bool) {
 
 // InWorld reports whether the point lies within the world bounds.
 func InWorld(x, y int) bool {
-	return x >= -WorldLimit && x < WorldLimit && y >= -WorldLimit && y < WorldLimit
+	return x >= -WorldWidth/2 && x < WorldWidth/2 && y >= -WorldHeight/2 && y < WorldHeight/2
 }
 
 // Valid reports whether the pixel is in the world and uses a palette colour.
@@ -59,8 +62,8 @@ func (p Pixel) Valid() bool {
 
 // ChunkInWorld reports whether chunk (cx, cy) contains world pixels.
 func ChunkInWorld(cx, cy int) bool {
-	lim := WorldLimit >> ChunkShift
-	return cx >= -lim && cx < lim && cy >= -lim && cy < lim
+	overlaps := func(c, size int) bool { return c*ChunkSize < size/2 && (c+1)*ChunkSize > -size/2 }
+	return overlaps(cx, WorldWidth) && overlaps(cy, WorldHeight)
 }
 
 // ChunkID returns the "cx:cy" chunk identifier used in Redis keys.

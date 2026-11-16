@@ -59,12 +59,14 @@ export class World {
   private minimap?: HTMLCanvasElement
   private mini = { x0: 0, y0: 0, span: MINIMAP_SPAN[0] as number } // world area shown by the minimap
   private miniTarget: number = MINIMAP_SPAN[0] // target step; `mini.span` glides towards it
+  private half: Point // half the world size (see camera.ts)
 
   constructor(
     private canvas: HTMLCanvasElement,
     private cfg: Config,
   ) {
     this.ctx = context2d(canvas)
+    this.half = { x: cfg.worldWidth / 2, y: cfg.worldHeight / 2 }
     this.chunks = new Chunks(cfg, this.redraw)
     canvas.addEventListener('pointerdown', this.down)
     canvas.addEventListener('pointermove', this.move)
@@ -86,7 +88,7 @@ export class World {
   /** Sets the camera without animation (clamped to the world and allowed zooms). */
   setCam(cam: Cam) {
     this.stopAnim()
-    this.cam = clampCam({ ...cam, zoom: clampZoom(cam.zoom) }, this.cfg.worldLimit)
+    this.cam = clampCam({ ...cam, zoom: clampZoom(cam.zoom) }, this.half)
     this.redraw()
   }
 
@@ -113,7 +115,7 @@ export class World {
   /** Animates to a pixel, then briefly highlights it. */
   jumpTo(x: number, y: number) {
     this.clearTarget()
-    const p = clampPixel({ x, y }, this.cfg.worldLimit)
+    const p = clampPixel({ x, y }, this.half)
     const zoom = Math.max((this.anim?.to ?? this.cam).zoom, HOME.zoom)
     this.animateTo({ x: p.x + 0.5, y: p.y + 0.5, zoom }, () => {
       this.target = { x: p.x, y: p.y }
@@ -129,11 +131,11 @@ export class World {
 
   /** Keyboard cursor: targets a pixel and moves the view just enough to keep it visible. */
   setCursor(x: number, y: number): Point {
-    const p = clampPixel({ x, y }, this.cfg.worldLimit)
+    const p = clampPixel({ x, y }, this.half)
     this.stopAnim()
     this.clearTarget()
     this.hover = { x: p.x, y: p.y }
-    this.cam = clampCam(keepVisible(this.cam, this.vp, this.hover), this.cfg.worldLimit)
+    this.cam = clampCam(keepVisible(this.cam, this.vp, this.hover), this.half)
     this.redraw()
     return this.hover
   }
@@ -156,7 +158,7 @@ export class World {
       last = { x: e.clientX, y: e.clientY, moved: true }
       const k = this.mini.span / m.clientWidth
       this.clearTarget()
-      this.cam = clampCam({ ...this.cam, x: this.cam.x + dx * k, y: this.cam.y + dy * k }, this.cfg.worldLimit)
+      this.cam = clampCam({ ...this.cam, x: this.cam.x + dx * k, y: this.cam.y + dy * k }, this.half)
       this.redraw()
     })
     m.addEventListener('pointerup', (e) => {
@@ -176,7 +178,7 @@ export class World {
   /** Immediate zoom around a screen point (wheel, pinch: already continuous). */
   zoomAt(factor: number, sx: number, sy: number) {
     this.stopAnim()
-    this.cam = clampCam(zoomAround(this.cam, factor, this.vp, sx, sy), this.cfg.worldLimit)
+    this.cam = clampCam(zoomAround(this.cam, factor, this.vp, sx, sy), this.half)
     this.redraw()
   }
 
@@ -245,15 +247,15 @@ export class World {
     const tl = this.toWorld(0, 0)
     const br = this.toWorld(w, h)
     const visible = new Set<string>()
-    this.eachChunk(tl, br, visible, (c, x, y) => ctx.drawImage(c, x, y))
+    this.drawChunks(ctx, tl, br, visible)
 
     if (this.showGrid && cam.zoom >= GRID_MIN_ZOOM) {
       ctx.strokeStyle = 'rgba(0,0,0,0.08)'
       ctx.lineWidth = 1 / cam.zoom
       // Only inside the world: the area around it stays plain.
-      const L = this.cfg.worldLimit
-      const [x0, x1] = [Math.max(Math.floor(tl.x), -L), Math.min(br.x, L)]
-      const [y0, y1] = [Math.max(Math.floor(tl.y), -L), Math.min(br.y, L)]
+      const { half } = this
+      const [x0, x1] = [Math.max(Math.floor(tl.x), -half.x), Math.min(br.x, half.x)]
+      const [y0, y1] = [Math.max(Math.floor(tl.y), -half.y), Math.min(br.y, half.y)]
       ctx.beginPath()
       for (let x = x0; x <= x1; x++) {
         ctx.moveTo(x, y0)
@@ -273,17 +275,29 @@ export class World {
     this.chunks.evict(visible)
   }
 
-  /** Draws the ready chunks covering area [a, b] (world coordinates) and loads the others. */
-  private eachChunk(a: Point, b: Point, seen: Set<string>, draw: (c: OffscreenCanvas, x: number, y: number) => void) {
+  /** Draws the ready chunks covering area [a, b] (world coordinates) and loads the others.
+   *  Border chunks stick out of the world: drawing is clipped to it. */
+  private drawChunks(ctx: CanvasRenderingContext2D, a: Point, b: Point, seen: Set<string>) {
     const S = this.cfg.chunkSize
-    const lim = this.cfg.worldLimit / S
-    for (let cy = Math.max(-lim, Math.floor(a.y / S)); cy <= Math.min(lim - 1, Math.floor(b.y / S)); cy++) {
-      for (let cx = Math.max(-lim, Math.floor(a.x / S)); cx <= Math.min(lim - 1, Math.floor(b.x / S)); cx++) {
+    const { half } = this
+    ctx.save()
+    ctx.beginPath()
+    ctx.rect(-half.x, -half.y, 2 * half.x, 2 * half.y)
+    ctx.clip()
+    const range = (lo: number, hi: number, h: number) => [
+      Math.max(Math.floor(lo / S), Math.floor(-h / S)),
+      Math.min(Math.floor(hi / S), Math.ceil(h / S) - 1),
+    ]
+    const [cx0, cx1] = range(a.x, b.x, half.x)
+    const [cy0, cy1] = range(a.y, b.y, half.y)
+    for (let cy = cy0; cy <= cy1; cy++) {
+      for (let cx = cx0; cx <= cx1; cx++) {
         seen.add(this.chunks.key(cx, cy))
         const c = this.chunks.get(cx, cy)
-        if (c) draw(c, cx * S, cy * S)
+        if (c) ctx.drawImage(c, cx * S, cy * S)
       }
     }
+    ctx.restore()
   }
 
   /** Overview centred on the camera; the rectangle shows what is visible. */
@@ -308,14 +322,14 @@ export class World {
     mctx.fillRect(0, 0, size, size)
     mctx.setTransform(k, 0, 0, k, -x0 * k, -y0 * k)
     mctx.imageSmoothingEnabled = true
-    this.eachChunk({ x: x0, y: y0 }, { x: x0 + span, y: y0 + span }, seen, (c, x, y) => mctx.drawImage(c, x, y))
+    this.drawChunks(mctx, { x: x0, y: y0 }, { x: x0 + span, y: y0 + span }, seen)
     outline(mctx, tl.x, tl.y, br.x - tl.x, br.y - tl.y, (2 * dpr) / k)
   }
 
   private updateHover(e: PointerEvent) {
     const p = this.toWorld(e.offsetX, e.offsetY)
     const cell = { x: Math.floor(p.x), y: Math.floor(p.y) }
-    const next = inWorld(cell, this.cfg.worldLimit) ? cell : null
+    const next = inWorld(cell, this.half) ? cell : null
     const h = this.hover
     if (h === next || (next && h?.x === next.x && h.y === next.y)) return
     this.hover = next
@@ -337,10 +351,7 @@ export class World {
         this.stopAnim()
         this.clearTarget()
         const { x, y, zoom } = this.cam
-        this.cam = clampCam(
-          { x: x - (e.clientX - d.lx) / zoom, y: y - (e.clientY - d.ly) / zoom, zoom },
-          this.cfg.worldLimit,
-        )
+        this.cam = clampCam({ x: x - (e.clientX - d.lx) / zoom, y: y - (e.clientY - d.ly) / zoom, zoom }, this.half)
         this.canvas.style.cursor = 'grabbing'
         this.redraw()
       }
@@ -358,7 +369,7 @@ export class World {
     if (!d.moved && e.button === 0) {
       const p = this.toWorld(e.offsetX, e.offsetY)
       const cell = { x: Math.floor(p.x), y: Math.floor(p.y) }
-      if (inWorld(cell, this.cfg.worldLimit)) this.onPlace(cell.x, cell.y)
+      if (inWorld(cell, this.half)) this.onPlace(cell.x, cell.y)
     }
   }
 
@@ -382,7 +393,7 @@ export class World {
     }
     this.stopAnim()
     const { x, y, zoom } = this.cam
-    this.cam = clampCam({ x: x + (e.deltaX * unit) / zoom, y: y + (e.deltaY * unit) / zoom, zoom }, this.cfg.worldLimit)
+    this.cam = clampCam({ x: x + (e.deltaX * unit) / zoom, y: y + (e.deltaY * unit) / zoom, zoom }, this.half)
     this.redraw()
   }
 }

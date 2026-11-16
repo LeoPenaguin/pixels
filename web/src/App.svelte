@@ -4,15 +4,15 @@
   import HelpDialog from './components/HelpDialog.svelte'
   import JumpPanel from './components/JumpPanel.svelte'
   import NavControls from './components/NavControls.svelte'
+  import ServerDown from './components/ServerDown.svelte'
   import Toolbar from './components/Toolbar.svelte'
   import { fetchConfig, fetchPixelInfo, type Config, type PixelInfo } from './lib/api'
   import { colorName } from './lib/colors'
-  import { HOME, type Point } from './lib/engine/camera'
+  import type { Point } from './lib/engine/camera'
   import { World } from './lib/engine/world'
   import { shortcut, type Action } from './lib/keyboard'
   import { Live } from './lib/live'
   import { quotaAt } from './lib/quota'
-  import { loadLastPixel, loadView, saveLastPixel, saveView } from './lib/storage'
 
   const RETRY_MS = 2000 // server unreachable on load: retry
   const INFO_DELAY_MS = 200 // a pixel's history loads after a short pause on it
@@ -35,7 +35,7 @@
   let quota = $state({ n: Infinity, at: 0 }) // the server is authoritative ("q" message)
   let now = $state(Date.now())
   let lost = $state(false) // true only after a disconnection, not on first load
-  let error = $state('')
+  let down = $state(false) // server unreachable on load (retried every RETRY_MS)
   let message = $state('') // screen reader announcement
 
   let colors: string[] = [] // flattened palette, filled when the configuration loads
@@ -87,7 +87,6 @@
       quota = { n: q.tokens - 1, at: now } // optimistic, corrected by the server's answer
     }
     live.send(x, y, color)
-    saveLastPixel({ x, y })
     announce(`${colorName(colors[color])} posé en ${String(x)}, ${String(y)}`)
   }
 
@@ -145,14 +144,10 @@
     run(a)
   }
 
-  function persistView() {
-    if (world) saveView(world.cam)
-  }
-
   async function init() {
     try {
       const conf = await fetchConfig()
-      error = ''
+      down = false
       cfg = conf
       colors = conf.palette.flat()
       quota = { n: conf.quota.burst, at: Date.now() }
@@ -169,10 +164,6 @@
       w.onView = (p) => {
         if (p.x !== center.x || p.y !== center.y) center = p
       }
-      // Reopen on the last painted pixel; failing that, on the last view.
-      const last = loadLastPixel()
-      const view = last ? { x: last.x + 0.5, y: last.y + 0.5, zoom: HOME.zoom } : loadView()
-      if (view) w.setCam(view)
       w.setMinimap(minimap)
       live = new Live({
         onOpen: () => {
@@ -188,7 +179,7 @@
       })
       live.connect()
     } catch {
-      error = 'Serveur injoignable'
+      down = true
       setTimeout(() => void init(), RETRY_MS)
     }
   }
@@ -203,12 +194,7 @@
   })
 </script>
 
-<svelte:window onkeydown={keydown} onpagehide={persistView} />
-<svelte:document
-  onvisibilitychange={() => {
-    if (document.hidden) persistView()
-  }}
-/>
+<svelte:window onkeydown={keydown} />
 
 <!-- The board is an interactive area driven by our shortcuts: role application so screen
      readers pass arrows, Enter and Space through. -->
@@ -228,30 +214,28 @@
 </p>
 <div class="sr-only" aria-live="polite">{message}</div>
 
-<JumpPanel
-  position={hover ?? center}
-  info={shownInfo}
-  {error}
-  {now}
-  onjump={(x: number, y: number) => world?.jumpTo(x, y)}
-/>
-
-<!-- Visual duplicate of the view, mouse-only: hidden from screen readers. -->
-<canvas class="panel minimap" bind:this={minimap} aria-hidden="true"></canvas>
-
-<NavControls
-  onzoomin={() => world?.zoomBy(1.5)}
-  onzoomout={() => world?.zoomBy(1 / 1.5)}
-  onrecenter={() => world?.recenter()}
-  onhelp={() => help.open()}
-/>
+<!-- Visual duplicate of the view, mouse-only: hidden from screen readers. Always rendered so it
+     is bound before the engine starts. -->
+<canvas class="panel minimap" bind:this={minimap} hidden={!cfg} aria-hidden="true"></canvas>
 <HelpDialog bind:this={help} />
+
+{#if down}
+  <ServerDown />
+{/if}
 
 {#if lost}
   <div class="panel offline" role="status">Connexion perdue, reconnexion…</div>
 {/if}
 
+<!-- Controls only once the board is loaded: before that they would do nothing. -->
 {#if cfg}
+  <JumpPanel position={hover ?? center} info={shownInfo} {now} onjump={(x: number, y: number) => world?.jumpTo(x, y)} />
+  <NavControls
+    onzoomin={() => world?.zoomBy(1.5)}
+    onzoomout={() => world?.zoomBy(1 / 1.5)}
+    onrecenter={() => world?.recenter()}
+    onhelp={() => help.open()}
+  />
   <Toolbar
     bind:this={toolbar}
     rows={cfg.palette}

@@ -64,14 +64,14 @@ func TestConfig(t *testing.T) {
 	e := newTestEnv(t, Options{Burst: 7, Refill: 1500 * time.Millisecond})
 	code, body := get(t, e.url+"/api/config")
 	var cfg struct {
-		ChunkSize, WorldLimit int
-		Palette               [][]string
-		Quota                 struct{ Burst, RefillMs int }
+		ChunkSize, WorldWidth, WorldHeight int
+		Palette                            [][]string
+		Quota                              struct{ Burst, RefillMs int }
 	}
 	if err := json.Unmarshal(body, &cfg); err != nil || code != 200 {
 		t.Fatal(code, err)
 	}
-	if cfg.ChunkSize != 256 || cfg.WorldLimit != board.WorldLimit || len(cfg.Palette) != len(board.PaletteRows) ||
+	if cfg.ChunkSize != 256 || cfg.WorldWidth != board.WorldWidth || cfg.WorldHeight != board.WorldHeight || len(cfg.Palette) != len(board.PaletteRows) ||
 		cfg.Quota.Burst != 7 || cfg.Quota.RefillMs != 1500 {
 		t.Errorf("config = %+v", cfg)
 	}
@@ -79,14 +79,14 @@ func TestConfig(t *testing.T) {
 
 func TestChunkRoute(t *testing.T) {
 	e := newTestEnv(t, Options{Burst: 1})
-	_ = e.mr.Set("chunk:-2:1", "\x05")
-	if code, body := get(t, e.url+"/api/chunks/-2/1"); code != 200 || string(body) != "\x05" {
+	_ = e.mr.Set("chunk:-4:2", "\x05")
+	if code, body := get(t, e.url+"/api/chunks/-4/2"); code != 200 || string(body) != "\x05" {
 		t.Errorf("chunk = %d %q", code, body)
 	}
 	if code, body := get(t, e.url+"/api/chunks/0/0"); code != 200 || len(body) != 0 {
 		t.Errorf("never-painted chunk = %d %q; want empty 200", code, body)
 	}
-	for _, bad := range []string{"x/0", "0/y", "2/0", "0/-3"} {
+	for _, bad := range []string{"x/0", "0/y", "4/0", "-5/0", "0/3", "0/-4"} {
 		if code, _ := get(t, e.url+"/api/chunks/"+bad); code != 400 {
 			t.Errorf("/api/chunks/%s = %d; want 400", bad, code)
 		}
@@ -104,7 +104,7 @@ func TestPixelRoute(t *testing.T) {
 	if err := json.Unmarshal(body, &info); err != nil || code != 200 || info != (board.Info{X: -1, Y: 2}) {
 		t.Errorf("pixel = %d %s", code, body)
 	}
-	for _, bad := range []string{"x/0", "0/y", "512/0"} {
+	for _, bad := range []string{"x/0", "0/y", "960/0", "0/540", "-961/0"} {
 		if code, _ := get(t, e.url+"/api/pixels/"+bad); code != 400 {
 			t.Errorf("/api/pixels/%s = %d; want 400", bad, code)
 		}

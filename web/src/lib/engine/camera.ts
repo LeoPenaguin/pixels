@@ -5,7 +5,7 @@ export type Point = { x: number; y: number }
 export type Cam = Point & { zoom: number }
 export type Viewport = { w: number; h: number }
 
-export const MIN_ZOOM = 0.5 // max zoom out: the whole 1024 × 1024 world fits in 512 screen px
+export const MIN_ZOOM = 0.5 // max zoom out: the whole 1920 × 1080 world fits in 960 × 540 screen px
 export const MAX_ZOOM = 24 // max zoom in: enough to aim, more adds nothing
 export const HOME: Cam = { x: 0, y: 0, zoom: 12 }
 const MAX_FLIGHT_SCREENS = 3 // beyond that, "teleport" near the target then animate the rest
@@ -15,18 +15,20 @@ const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v
 
 export const clampZoom = (zoom: number) => clamp(zoom, MIN_ZOOM, MAX_ZOOM)
 
-/** Is pixel p inside the world, i.e. in [-limit, limit) on both axes? */
-export const inWorld = (p: Point, limit: number) => p.x >= -limit && p.x < limit && p.y >= -limit && p.y < limit
+// `half` is half the world size: the world, centred on 0, 0, spans [-half.x, half.x) × [-half.y, half.y).
+
+/** Is pixel p inside the world? */
+export const inWorld = (p: Point, half: Point) => p.x >= -half.x && p.x < half.x && p.y >= -half.y && p.y < half.y
 
 /** Nearest world pixel to p. */
-export const clampPixel = (p: Point, limit: number): Point => ({
-  x: clamp(p.x, -limit, limit - 1),
-  y: clamp(p.y, -limit, limit - 1),
+export const clampPixel = (p: Point, half: Point): Point => ({
+  x: clamp(p.x, -half.x, half.x - 1),
+  y: clamp(p.y, -half.y, half.y - 1),
 })
 
 /** Keeps the view centre inside the world. */
-export function clampCam(cam: Cam, limit: number): Cam {
-  return { x: clamp(cam.x, -limit, limit), y: clamp(cam.y, -limit, limit), zoom: cam.zoom }
+export function clampCam(cam: Cam, half: Point): Cam {
+  return { x: clamp(cam.x, -half.x, half.x), y: clamp(cam.y, -half.y, half.y), zoom: cam.zoom }
 }
 
 /** Screen coordinates (CSS px) → world coordinates. */

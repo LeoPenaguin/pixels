@@ -3,7 +3,8 @@
 /** Board configuration. palette = colour rows; a colour's index = its position once the rows are flattened. */
 export type Config = {
   chunkSize: number
-  worldLimit: number
+  worldWidth: number // the world is centred on 0, 0
+  worldHeight: number
   palette: string[][]
   quota: { burst: number; refillMs: number } // refillMs = 0: unlimited
 }

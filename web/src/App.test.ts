@@ -33,7 +33,6 @@ beforeEach(() => {
 })
 
 afterEach(() => {
-  localStorage.clear()
   vi.unstubAllGlobals()
 })
 
@@ -64,7 +63,7 @@ const press = (key: string, init: KeyboardEventInit = {}) =>
   )
 
 describe('painting pixels', () => {
-  test('a click paints the selected colour, closes the palette and remembers the pixel', async () => {
+  test('a click paints the selected colour and closes the palette', async () => {
     const { ws } = await start()
     await page.getByRole('button', { name: /^Couleurs/ }).click()
     await page.getByRole('radio', { name: 'Rouge vif' }).click()
@@ -73,7 +72,6 @@ describe('painting pixels', () => {
     expect(ws.sent).toEqual([{ x: 0, y: 0, c: 6 }])
     await announced('Rouge vif posé en 0, 0')
     await expect.element(page.getByRole('radiogroup')).not.toBeInTheDocument()
-    expect(JSON.parse(localStorage.getItem('pixels:last')!)).toEqual({ x: 0, y: 0 })
   })
 
   test('quota exhausted, then refilled by the server', async () => {
@@ -190,6 +188,14 @@ describe('keyboard', () => {
     const x = page.getByRole('spinbutton', { name: 'Coordonnée X' })
     await x.fill('40')
     await userEvent.keyboard('{Enter}')
+    await vi.waitFor(() => {
+      expect(fields()).toEqual([40, 0]) // end of the animated jump
+    })
+    await page.getByRole('spinbutton', { name: 'Coordonnée Y' }).fill('7') // only y changes
+    await userEvent.keyboard('{Enter}')
+    await vi.waitFor(() => {
+      expect(fields()).toEqual([40, 7])
+    })
     await page.getByRole('button', { name: 'Zoomer', exact: true }).click()
     await page.getByRole('button', { name: 'Dézoomer' }).click()
     await page.getByRole('button', { name: 'Recentrer sur 0, 0' }).click()
@@ -202,49 +208,24 @@ describe('keyboard', () => {
   })
 })
 
-describe('loading and view memory', () => {
-  test('server unreachable: message, retry, and inert shortcuts meanwhile', async () => {
+describe('loading', () => {
+  test('server unreachable: a message instead of the board, inert shortcuts, then retry', async () => {
     let fail = true
     configResponse = () => (fail ? new Response('', { status: 503 }) : Response.json(config))
     const screen = await render(App)
-    await expect.element(page.getByRole('alert')).toHaveTextContent('Serveur injoignable')
+    await expect.element(page.getByRole('heading', { name: 'Petit souci technique' })).toBeVisible()
+    await expect.element(page.getByRole('button', { name: 'Zoomer', exact: true })).not.toBeInTheDocument()
     for (const k of ['ArrowUp', 'Enter', '+', '-', '0', 'g', 'c', 'Escape']) press(k)
-    for (const name of ['Zoomer', 'Dézoomer', 'Recentrer sur 0, 0'])
-      await page.getByRole('button', { name, exact: true }).click()
-    window.dispatchEvent(new PageTransitionEvent('pagehide'))
-    expect(localStorage.getItem('pixels:view')).toBeNull()
-    await page.getByRole('spinbutton', { name: 'Coordonnée X' }).fill('3')
-    await userEvent.keyboard('{Enter}')
     fail = false
     await expect.element(page.getByRole('button', { name: 'Grille' }), { timeout: 3000 }).toBeVisible()
     await expect.element(page.getByRole('alert')).not.toBeInTheDocument()
     await screen.unmount()
   })
 
-  test('reopens on the last painted pixel', async () => {
-    localStorage.setItem('pixels:last', '{"x":100,"y":-50}')
-    await start()
-    await frames()
-    ;(document.activeElement as HTMLElement | null)?.blur()
-    await vi.waitFor(() => {
-      expect(fields()).toEqual([100, -50])
-    })
-  })
-
-  test('otherwise reopens on the last view, saved when leaving or hiding the page', async () => {
-    localStorage.setItem('pixels:view', '{"x":-30.5,"y":20.5,"zoom":6}')
+  test('opens on 0, 0 and closes the connection when unmounted', async () => {
     const { screen } = await start()
-    await vi.waitFor(() => {
-      expect(fields()).toEqual([-31, 20])
-    })
-    window.dispatchEvent(new PageTransitionEvent('pagehide'))
-    expect(JSON.parse(localStorage.getItem('pixels:view')!)).toEqual({ x: -30.5, y: 20.5, zoom: 6 })
-    localStorage.clear()
-    document.dispatchEvent(new Event('visibilitychange')) // page visible: nothing
-    expect(localStorage.getItem('pixels:view')).toBeNull()
-    vi.spyOn(document, 'hidden', 'get').mockReturnValue(true)
-    document.dispatchEvent(new Event('visibilitychange'))
-    expect(localStorage.getItem('pixels:view')).not.toBeNull()
+    await frames()
+    expect(fields()).toEqual([0, 0])
     await screen.unmount()
     expect(FakeWebSocket.last.readyState).toBe(3)
   })
