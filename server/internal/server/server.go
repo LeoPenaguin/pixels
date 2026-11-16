@@ -5,6 +5,7 @@ import (
 	"compress/gzip"
 	"context"
 	"encoding/json"
+	"net"
 	"net/http"
 	"strconv"
 	"strings"
@@ -16,7 +17,11 @@ import (
 	"golang.org/x/time/rate"
 )
 
-const maxConnsIP = 10
+const (
+	maxConnsIP   = 10
+	lookupsBurst = 20 // pixel history lookups in a row per IP
+	lookupsRate  = 10 // per second after that: the front asks at most ~5/s (after a 200 ms pause)
+)
 
 // Options tunes the pixel quota.
 type Options struct {
@@ -26,11 +31,12 @@ type Options struct {
 
 // Server is the state shared by the routes (storage, quotas, connections, broadcast).
 type Server struct {
-	store  *board.Store
-	opts   Options
-	quotas *quotas
-	conns  *connLimit
-	hub    *hub
+	store   *board.Store
+	opts    Options
+	quotas  *quotas
+	lookups *quotas // pixel history requests, per IP
+	conns   *connLimit
+	hub     *hub
 
 	// ponytail: global lock around painting so Redis order = broadcast order.
 	// Tops out around 20k pixels/s locally; beyond that, lock per chunk.
@@ -52,6 +58,7 @@ func New(store *board.Store, o Options) *Server {
 		store:       store,
 		opts:        o,
 		quotas:      newQuotas(o.Burst, every),
+		lookups:     newQuotas(lookupsBurst, lookupsRate),
 		conns:       newConnLimit(maxConnsIP),
 		hub:         newHub(),
 		flushEvery:  100 * time.Millisecond,
@@ -82,6 +89,7 @@ func (s *Server) Loop(ctx context.Context) {
 			s.hub.flush()
 		case <-forget.C:
 			s.quotas.forgetIdle(s.conns.connected)
+			s.lookups.forgetIdle(func(string) bool { return false })
 		case <-ctx.Done():
 			return
 		}
@@ -145,6 +153,10 @@ func (s *Server) chunk(w http.ResponseWriter, r *http.Request) {
 
 // pixelInfo returns the colour, change count and time of the last change (null if never changed).
 func (s *Server) pixelInfo(w http.ResponseWriter, r *http.Request) {
+	if !s.lookups.get(clientIP(r)).Allow() {
+		http.Error(w, "too many requests", http.StatusTooManyRequests)
+		return
+	}
 	x, err1 := strconv.Atoi(r.PathValue("x"))
 	y, err2 := strconv.Atoi(r.PathValue("y"))
 	if err1 != nil || err2 != nil || !board.InWorld(x, y) {
@@ -163,4 +175,11 @@ func (s *Server) pixelInfo(w http.ResponseWriter, r *http.Request) {
 func writeJSON(w http.ResponseWriter, v any) {
 	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(v)
+}
+
+// clientIP is the IP quotas and limits are counted against.
+// ponytail: RemoteAddr only; behind a reverse proxy, read a trusted X-Forwarded-For.
+func clientIP(r *http.Request) string {
+	ip, _, _ := net.SplitHostPort(r.RemoteAddr)
+	return ip
 }

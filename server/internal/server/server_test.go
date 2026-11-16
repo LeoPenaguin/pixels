@@ -127,6 +127,19 @@ func TestPixelRoute(t *testing.T) {
 	}
 }
 
+func TestPixelRouteRateLimit(t *testing.T) {
+	e := newTestEnv(t, Options{Burst: 1})
+	limited := 0
+	for range lookupsBurst + 10 {
+		if code, _ := get(t, e.url+"/api/pixels/0/0"); code == 429 {
+			limited++
+		}
+	}
+	if limited == 0 {
+		t.Error("a flood of history lookups must be refused with 429")
+	}
+}
+
 func TestPlaceIgnoresRedisErrors(t *testing.T) {
 	e := newTestEnv(t, Options{Burst: 1})
 	e.mr.Close()

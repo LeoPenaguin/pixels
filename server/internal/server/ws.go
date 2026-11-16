@@ -2,7 +2,6 @@ package server
 
 import (
 	"context"
-	"net"
 	"net/http"
 
 	"github.com/LeoPenaguin/pixels/server/internal/board"
@@ -14,8 +13,7 @@ import (
 // Protocol: the client sends {"x","y","c"}; the server answers {"t":"q","n"} (remaining quota)
 // and broadcasts {"t":"b","p":[…]} batches.
 func (s *Server) ws(w http.ResponseWriter, r *http.Request) {
-	// ponytail: RemoteAddr only; behind a reverse proxy, read a trusted X-Forwarded-For.
-	ip, _, _ := net.SplitHostPort(r.RemoteAddr)
+	ip := clientIP(r)
 	if !s.conns.acquire(ip) {
 		http.Error(w, "too many connections", http.StatusTooManyRequests)
 		return

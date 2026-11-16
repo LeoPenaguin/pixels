@@ -74,6 +74,7 @@ See [CLAUDE.md](CLAUDE.md) for conventions (naming, commits, branches, layout).
 - Batched broadcast every 100 ms: outgoing messages no longer scale with clicks.
 - Anti-flood: 10 messages/s (burst 20) per connection, beyond that the connection is closed; messages are 256 bytes max.
 - 10 WebSocket connections max per IP; cross-origin WebSockets are refused.
+- Pixel history (`/api/pixels`): 20 requests in a row per IP, then 10 per second; beyond that, 429.
 
 ## Server configuration (environment variables)
 
